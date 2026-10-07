@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoServis Yönetim Sistemi</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #222;
+        }
+
+        .header {
+            background: #1f2937;
+            color: white;
+            padding: 20px 35px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+        }
+
+        .header span {
+            font-size: 14px;
+            color: #d1d5db;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .welcome {
+            margin-bottom: 30px;
+        }
+
+        .welcome h2 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .welcome p {
+            color: #6b7280;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+        }
+
+        .icon {
+            font-size: 35px;
+            margin-bottom: 15px;
+        }
+
+        .card h3 {
+            margin-bottom: 8px;
+        }
+
+        .card p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #9ca3af;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="header">
+    <h1>🚗 AutoServis</h1>
+    <span>Yönetim Sistemi</span>
+</header>
+
+<main class="container">
+
+    <section class="welcome">
+        <h2>Hoş Geldiniz 👋</h2>
+        <p>AutoServis yönetim panelinden işlemlerinizi kolayca yönetin.</p>
+    </section>
+
+    <section class="cards">
+
+        <div class="card" onclick="window.location.href='/araclar'">
+            <div class="icon">🚗</div>
+            <h3>Araçlar</h3>
+            <p>Kayıtlı araçları görüntüle ve yeni araç ekle.</p>
+        </div>
+
+        <div class="card">
+            <div class="icon">👤</div>
+            <h3>Müşteriler</h3>
+            <p>Müşteri bilgilerini yönet ve yeni müşteri kaydet.</p>
+        </div>
+
+        <div class="card">
+            <div class="icon">🔧</div>
+            <h3>Servis Kayıtları</h3>
+            <p>Araçların servis ve bakım işlemlerini takip et.</p>
+        </div>
+
+        <div class="card">
+            <div class="icon">📅</div>
+            <h3>Randevular</h3>
+            <p>Servis randevularını oluştur ve takip et.</p>
+        </div>
+
+        <div class="card">
+            <div class="icon">💰</div>
+            <h3>Ödemeler</h3>
+            <p>Servis ücretlerini ve ödeme durumlarını yönet.</p>
+        </div>
+
+        <div class="card">
+            <div class="icon">📊</div>
+            <h3>Raporlar</h3>
+            <p>Servis ve işletme verilerini görüntüle.</p>
+        </div>
+
+    </section>
+
+    <footer class="footer">
+        © 2026 AutoServis - Tüm hakları saklıdır.
+    </footer>
+
+</main>
+
+</body>
+</html>
