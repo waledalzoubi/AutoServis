@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Araçlar</title>
+</head>
+
+<body>
+
+<h1>Araçlar</h1>
+
+<a href="/arac-ekle">+ Yeni Araç Ekle</a>
+
+<h2>Kayıtlı Araçlar</h2>
+
+<table border="1">
+
+    <tr>
+        <th>Plaka</th>
+        <th>Marka</th>
+        <th>Model</th>
+        <th>Yıl</th>
+        <th>Telefon</th>
+        <th>Servis Durumu</th>
+        <th>Detay</th>
+        <th>WhatsApp</th>
+    </tr>
+
+    <tr th:each="arac : ${araclar}">
+
+        <td th:text="${arac.plaka}"></td>
+        <td th:text="${arac.marka}"></td>
+        <td th:text="${arac.model}"></td>
+        <td th:text="${arac.yil}"></td>
+        <td th:text="${arac.telefon}"></td>
+        <td th:text="${arac.durum}"></td>
+
+        <td>
+            <a th:href="@{/takip/{id}(id=${arac.id})}">
+                Araç Detayını Gör
+            </a>
+        </td>
+
+        <td>
+
+            <a th:href="@{'https://wa.me/90' + ${#strings.substring(arac.telefon, 1)} +
+                    '?text=Merhaba%2C%20AutoServis%27ten%20ileti%C5%9Fime%20ge%C3%A7iyoruz.%0A%0A' +
+                    'Arac%C4%B1n%C4%B1z%C4%B1n%20servis%20i%C5%9Flemi%20devam%20etmektedir.%0A%0A' +
+                    'Arac%C4%B1n%C4%B1z%C4%B1n%20hangi%20i%C5%9Flemde%20oldu%C4%9Funu%20ve%20servis%20s%C3%BCreciyle%20ilgili%20detayl%C4%B1%20bilgi%20i%C3%A7in%20a%C5%9Fa%C4%9F%C4%B1daki%20ba%C4%9Flant%C4%B1ya%20t%C4%B1klay%C4%B1n:%0A%0A' +
+                    'http%3A%2F%2Flocalhost%3A8080%2Ftakip%2F' + ${arac.id} +
+                    '%0A%0A%C4%B0yi%20g%C3%BCnler%20dileriz.%0AAutoServis'}"
+               target="_blank">
+
+                📱 WhatsApp'tan Gönder
+
+            </a>
+
+        </td>
+
+    </tr>
+
+</table>
+
+</body>
+</html>

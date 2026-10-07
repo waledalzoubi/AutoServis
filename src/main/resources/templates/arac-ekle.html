@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Yeni Araç Ekle</title>
+</head>
+<body>
+
+<h1>Yeni Araç Ekle</h1>
+
+<form action="/arac-kaydet" method="get">
+
+    <label>Plaka:</label>
+    <input type="text" name="plaka" required>
+    <br><br>
+
+    <label>Marka:</label>
+    <input type="text" name="marka" required>
+    <br><br>
+
+    <label>Model:</label>
+    <input type="text" name="model" required>
+    <br><br>
+
+    <label>Yıl:</label>
+    <input type="number" name="yil" required>
+    <br><br>
+
+    <label>Telefon Numarası:</label>
+    <input type="tel" name="telefon" placeholder="05XXXXXXXXX" required>
+    <br><br>
+
+    <label>Servis Durumu:</label>
+    <select name="durum" required>
+        <option value="">Seçiniz</option>
+        <option value="Araç servise alındı">Araç servise alındı</option>
+        <option value="Arıza tespiti yapılıyor">Arıza tespiti yapılıyor</option>
+        <option value="Parça bekleniyor">Parça bekleniyor</option>
+        <option value="Onarım yapılıyor">Onarım yapılıyor</option>
+        <option value="Test aşamasında">Test aşamasında</option>
+        <option value="Araç hazır">Araç hazır</option>
+        <option value="Teslim edildi">Teslim edildi</option>
+    </select>
+    <br><br>
+
+    <button type="submit">Kaydet</button>
+
+</form>
+
+</body>
+</html>

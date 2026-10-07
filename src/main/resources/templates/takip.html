@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Araç Servis Takibi</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .bilgi {
+            margin: 20px 0;
+        }
+
+        .satir {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .durum {
+            margin-top: 25px;
+            padding: 20px;
+            background: #e8f5e9;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🚗 AutoServis</h1>
+
+    <h2>Servis Bilgileri</h2>
+
+    <div class="bilgi">
+
+        <div class="satir">
+            <strong>Plaka:</strong>
+            <span th:text="${arac.plaka}"></span>
+        </div>
+
+        <div class="satir">
+            <strong>Marka:</strong>
+            <span th:text="${arac.marka}"></span>
+        </div>
+
+        <div class="satir">
+            <strong>Model:</strong>
+            <span th:text="${arac.model}"></span>
+        </div>
+
+        <div class="satir">
+            <strong>Yıl:</strong>
+            <span th:text="${arac.yil}"></span>
+        </div>
+
+    </div>
+
+    <div class="durum">
+        Servis Durumu:
+        <br><br>
+        <span th:text="${arac.durum}"></span>
+    </div>
+
+    <p style="text-align:center; margin-top:25px;">
+        Aracınızın servis işlemleriyle ilgili güncel durum yukarıda belirtilmiştir.
+    </p>
+
+</div>
+
+</body>
+</html>
