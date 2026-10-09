@@ -20,6 +20,7 @@ public class MusteriController {
     public MusteriController(
             AracRepository aracRepository,
             ServisKaydiRepository servisKaydiRepository) {
+
         this.aracRepository = aracRepository;
         this.servisKaydiRepository = servisKaydiRepository;
     }
@@ -35,50 +36,60 @@ public class MusteriController {
             @RequestParam String telefonSon4,
             Model model) {
 
-        String arananPlaka = plaka
-                .replaceAll("\\s+", "")
-                .toUpperCase(Locale.ROOT);
+        // Girilen plakayı standartlaştır.
+        String arananPlaka = normalizePlaka(plaka);
 
+        // Telefon alanından yalnızca rakamları al.
         String sonDortHane = telefonSon4.replaceAll("\\D", "");
 
         if (arananPlaka.isBlank() || sonDortHane.length() != 4) {
-            model.addAttribute("hata",
-                    "Plakanızı ve telefonunuzun son 4 hanesini doğru girin.");
+            model.addAttribute(
+                    "hata",
+                    "Plakanızı ve telefonunuzun son 4 hanesini doğru girin."
+            );
             return "musteri-giris";
         }
 
+        // Kayıtlı araçlarla karşılaştır.
         Arac bulunanArac = aracRepository.findAll()
                 .stream()
-                .filter(arac -> arac.getPlaka() != null
-                        && arac.getPlaka().replaceAll("\\s+", "")
-                        .equalsIgnoreCase(arananPlaka))
                 .filter(arac -> {
-                    if (arac.getTelefon() == null) {
+                    if (arac.getPlaka() == null
+                            || arac.getTelefon() == null) {
                         return false;
                     }
 
-                    String telefon = arac.getTelefon().replaceAll("\\D", "");
-                    return telefon.length() >= 4
-                            && telefon.endsWith(sonDortHane);
+                    String kayitliPlaka =
+                            normalizePlaka(arac.getPlaka());
+
+                    String kayitliTelefon =
+                            arac.getTelefon().replaceAll("\\D", "");
+
+                    return kayitliPlaka.equals(arananPlaka)
+                            && kayitliTelefon.length() >= 4
+                            && kayitliTelefon.endsWith(sonDortHane);
                 })
                 .findFirst()
                 .orElse(null);
 
         if (bulunanArac == null) {
-            model.addAttribute("hata",
-                    "Bilgiler eşleşmedi. Plakanızı ve telefonunuzu kontrol edin.");
+            model.addAttribute(
+                    "hata",
+                    "Bilgiler eşleşmedi. Plaka ve telefonun son 4 hanesini kontrol edin."
+            );
             return "musteri-giris";
         }
 
-        // Eski araç kaydında anahtar yoksa oluşturup kaydet.
+        // Eski araç kaydında takip anahtarı yoksa oluştur.
         if (bulunanArac.getTakipAnahtari() == null
                 || bulunanArac.getTakipAnahtari().isBlank()) {
-            bulunanArac.setTakipAnahtari(UUID.randomUUID().toString());
+
+            bulunanArac.setTakipAnahtari(
+                    UUID.randomUUID().toString()
+            );
+
             bulunanArac = aracRepository.save(bulunanArac);
         }
-
-        System.out.println("BULUNAN ARAÇ: " + bulunanArac.getPlaka()
-                + " | TAKİP ANAHTARI: " + bulunanArac.getTakipAnahtari());
 
         return "redirect:/musteri/takip/"
                 + bulunanArac.getTakipAnahtari();
@@ -91,8 +102,10 @@ public class MusteriController {
 
         Arac bulunanArac = aracRepository.findAll()
                 .stream()
-                .filter(arac -> arac.getTakipAnahtari() != null
-                        && arac.getTakipAnahtari().equals(anahtar))
+                .filter(arac ->
+                        arac.getTakipAnahtari() != null
+                                && arac.getTakipAnahtari().equals(anahtar)
+                )
                 .findFirst()
                 .orElse(null);
 
@@ -101,7 +114,9 @@ public class MusteriController {
         }
 
         List<ServisKaydi> kayitlar =
-                servisKaydiRepository.findByAracId(bulunanArac.getId());
+                servisKaydiRepository.findByAracId(
+                        bulunanArac.getId()
+                );
 
         double toplamMaliyet = kayitlar.stream()
                 .mapToDouble(ServisKaydi::getToplamUcret)
@@ -112,5 +127,12 @@ public class MusteriController {
         model.addAttribute("toplamMaliyet", toplamMaliyet);
 
         return "musteri-takip";
+    }
+
+    // Türkçe karakterler, boşluklar ve küçük/büyük harf farklarını düzenle.
+    private String normalizePlaka(String plaka) {
+        return plaka
+                .replaceAll("\\s+", "")
+                .toUpperCase(Locale.forLanguageTag("tr-TR"));
     }
 }
