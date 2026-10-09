@@ -1,66 +1,370 @@
 <!DOCTYPE html>
 <html lang="tr" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Araçlar</title>
+    <title>Araçlar - AutoServis</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f1f4f9;
+            color: #202938;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        h1 {
+            margin-bottom: 8px;
+        }
+
+        .aciklama {
+            color: #64748b;
+            margin-bottom: 25px;
+        }
+
+        .buton {
+            display: inline-block;
+            padding: 11px 18px;
+            background-color: #198754;
+            color: white;
+            text-decoration: none;
+            border-radius: 7px;
+            margin-bottom: 25px;
+        }
+
+        .geri {
+            display: inline-block;
+            margin-left: 8px;
+            padding: 11px 18px;
+            background-color: #212529;
+            color: white;
+            text-decoration: none;
+            border-radius: 7px;
+        }
+
+        .tablo-alani {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+            overflow-x: auto;
+        }
+
+        .arama {
+            width: 100%;
+            padding: 13px;
+            margin: 10px 0 20px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .arama:focus {
+            border-color: #0d6efd;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 950px;
+        }
+
+        th {
+            background-color: #172337;
+            color: white;
+            padding: 13px 10px;
+        }
+
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: center;
+        }
+
+        tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .detay {
+            color: #0d6efd;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .whatsapp {
+            color: #198754;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .duzenle {
+            color: #d97706;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .sil {
+            color: #dc3545;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .durum {
+            font-weight: bold;
+        }
+
+        .servis {
+            color: #6f42c1;
+        }
+
+        .tespit {
+            color: #0d6efd;
+        }
+
+        .parca {
+            color: #d97706;
+        }
+
+        .onarim {
+            color: #dc3545;
+        }
+
+        .test {
+            color: #17a2b8;
+        }
+
+        .hazir {
+            color: #198754;
+        }
+
+        .teslim {
+            color: #343a40;
+        }
+    </style>
 </head>
 
 <body>
 
-<h1>Araçlar</h1>
+<div class="container">
 
-<a href="/arac-ekle">+ Yeni Araç Ekle</a>
+    <h1>🚗 Araç Takip Sistemi</h1>
 
-<h2>Kayıtlı Araçlar</h2>
+    <p class="aciklama">
+        Sisteme kayıtlı araçları görüntüleyebilir ve işlemlerini yönetebilirsiniz.
+    </p>
 
-<table border="1">
+    <a class="buton" href="/arac-ekle">+ Yeni Araç Ekle</a>
 
-    <tr>
-        <th>Plaka</th>
-        <th>Marka</th>
-        <th>Model</th>
-        <th>Yıl</th>
-        <th>Telefon</th>
-        <th>Servis Durumu</th>
-        <th>Detay</th>
-        <th>WhatsApp</th>
-    </tr>
+    <a class="geri" href="/">🏠 Ana Sayfa</a>
 
-    <tr th:each="arac : ${araclar}">
+    <div class="tablo-alani">
 
-        <td th:text="${arac.plaka}"></td>
-        <td th:text="${arac.marka}"></td>
-        <td th:text="${arac.model}"></td>
-        <td th:text="${arac.yil}"></td>
-        <td th:text="${arac.telefon}"></td>
-        <td th:text="${arac.durum}"></td>
+        <h2>Kayıtlı Araçlar</h2>
 
-        <td>
-            <a th:href="@{/takip/{id}(id=${arac.id})}">
-                Araç Detayını Gör
-            </a>
-        </td>
+        <input
+                type="text"
+                id="arama"
+                class="arama"
+                placeholder="🔍 Plaka, marka, model veya telefon ara..."
+                onkeyup="aracAra()">
 
-        <td>
+        <table>
 
-            <a th:href="@{'https://wa.me/90' + ${#strings.substring(arac.telefon, 1)} +
-                    '?text=Merhaba%2C%20AutoServis%27ten%20ileti%C5%9Fime%20ge%C3%A7iyoruz.%0A%0A' +
-                    'Arac%C4%B1n%C4%B1z%C4%B1n%20servis%20i%C5%9Flemi%20devam%20etmektedir.%0A%0A' +
-                    'Arac%C4%B1n%C4%B1z%C4%B1n%20hangi%20i%C5%9Flemde%20oldu%C4%9Funu%20ve%20servis%20s%C3%BCreciyle%20ilgili%20detayl%C4%B1%20bilgi%20i%C3%A7in%20a%C5%9Fa%C4%9F%C4%B1daki%20ba%C4%9Flant%C4%B1ya%20t%C4%B1klay%C4%B1n:%0A%0A' +
-                    'http%3A%2F%2Flocalhost%3A8080%2Ftakip%2F' + ${arac.id} +
-                    '%0A%0A%C4%B0yi%20g%C3%BCnler%20dileriz.%0AAutoServis'}"
-               target="_blank">
+            <thead>
+            <tr>
+                <th>Plaka</th>
+                <th>Marka</th>
+                <th>Model</th>
+                <th>Yıl</th>
+                <th>Telefon</th>
+                <th>Servis Durumu</th>
+                <th>Detay</th>
+                <th>WhatsApp</th>
+                <th>İşlemler</th>
+            </tr>
+            </thead>
 
-                📱 WhatsApp'tan Gönder
+            <tbody>
 
-            </a>
+            <tr th:each="arac : ${araclar}">
 
-        </td>
+                <td th:text="${arac.plaka}"></td>
 
-    </tr>
+                <td th:text="${arac.marka}"></td>
 
-</table>
+                <td th:text="${arac.model}"></td>
+
+                <td th:text="${arac.yil}"></td>
+
+                <td th:text="${arac.telefon}"></td>
+
+                <td class="durum" th:text="${arac.durum}"></td>
+
+                <td>
+                    <a class="detay"
+                       th:href="@{/takip/{id}(id=${arac.id})}">
+                        🔎 Detay
+                    </a>
+                </td>
+
+                <!-- Müşterinin kendi araç takip sayfasına giden WhatsApp bağlantısı -->
+                <td>
+
+                    <a href="#"
+                       class="whatsapp whatsapp-link"
+                       th:if="${arac.telefon != null
+                               and arac.takipAnahtari != null
+                               and !arac.takipAnahtari.isEmpty()}"
+                       th:attr="data-telefon=${arac.telefon},
+                                data-anahtar=${arac.takipAnahtari}"
+                       rel="noopener">
+                        📱 WhatsApp
+                    </a>
+
+                    <span th:if="${arac.telefon == null
+                                  or arac.takipAnahtari == null
+                                  or arac.takipAnahtari.isEmpty()}">
+                        Takip bağlantısı yok
+                    </span>
+
+                </td>
+
+                <td>
+                    <a class="duzenle"
+                       th:href="@{/arac-duzenle/{id}(id=${arac.id})}">
+                        ✏️ Düzenle
+                    </a>
+
+                    <br><br>
+
+                    <a class="sil"
+                       th:href="@{/arac-sil/{id}(id=${arac.id})}"
+                       onclick="return confirm('Bu aracı silmek istediğinize emin misiniz?')">
+                        🗑️ Sil
+                    </a>
+                </td>
+
+            </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<script>
+    // Araç arama özelliği
+    function aracAra() {
+        const arama = document
+            .getElementById("arama")
+            .value
+            .toLowerCase();
+
+        const satirlar = document.querySelectorAll("tbody tr");
+
+        satirlar.forEach(function (satir) {
+            const metin = satir.innerText.toLowerCase();
+
+            satir.style.display = metin.includes(arama) ? "" : "none";
+        });
+    }
+
+    // Servis durumlarının renklendirilmesi
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const durumlar = document.querySelectorAll(".durum");
+
+        durumlar.forEach(function (durum) {
+
+            const metin = durum.innerText.trim();
+
+            if (metin === "Araç servise alındı") {
+                durum.classList.add("servis");
+            } else if (metin === "Arıza tespiti yapılıyor") {
+                durum.classList.add("tespit");
+            } else if (metin === "Parça bekleniyor") {
+                durum.classList.add("parca");
+            } else if (metin === "Onarım yapılıyor") {
+                durum.classList.add("onarim");
+            } else if (metin === "Test aşamasında") {
+                durum.classList.add("test");
+            } else if (metin === "Araç hazır") {
+                durum.classList.add("hazir");
+            } else if (metin === "Teslim edildi") {
+                durum.classList.add("teslim");
+            }
+
+        });
+
+        // WhatsApp mesajını oluştur ve aç
+        const whatsappButonlari = document.querySelectorAll(".whatsapp-link");
+
+        whatsappButonlari.forEach(function (buton) {
+
+            buton.addEventListener("click", function (event) {
+
+                event.preventDefault();
+
+                let telefon = buton.dataset.telefon || "";
+                const anahtar = buton.dataset.anahtar || "";
+
+                // Telefon numarasındaki boşlukları ve işaretleri temizle
+                telefon = telefon.replace(/\D/g, "");
+
+                // Türkiye telefon numarasını uluslararası formata dönüştür
+                if (telefon.startsWith("00")) {
+                    telefon = telefon.substring(2);
+                }
+
+                if (telefon.startsWith("0")) {
+                    telefon = telefon.substring(1);
+                }
+
+                if (!telefon.startsWith("90")) {
+                    telefon = "90" + telefon;
+                }
+
+                if (!telefon || !anahtar) {
+                    alert("Telefon numarası veya araç takip bağlantısı bulunamadı.");
+                    return;
+                }
+
+                // Her müşteriye yalnızca kendi aracının takip bağlantısını gönder
+                const takipLinki =
+                    "https://autoservis-2f51.onrender.com/musteri/takip/" + anahtar;
+
+                const mesaj =
+                    "Merhaba, AutoServis'ten yazıyoruz.\n\n" +
+                    "Aracınızın servis durumunu, yapılan işlemleri ve ücretleri " +
+                    "aşağıdaki bağlantıdan takip edebilirsiniz:\n\n" +
+                    takipLinki +
+                    "\n\nİyi günler dileriz.\nAutoServis";
+
+                const whatsappLink =
+                    "https://wa.me/" + telefon +
+                    "?text=" + encodeURIComponent(mesaj);
+
+                // Kullanıcının tıklaması üzerine WhatsApp'ı aç
+                window.open(whatsappLink, "_blank");
+
+            });
+
+        });
+
+    });
+</script>
 
 </body>
 </html>

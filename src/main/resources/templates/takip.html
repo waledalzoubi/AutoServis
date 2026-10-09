@@ -1,48 +1,107 @@
 <!DOCTYPE html>
 <html lang="tr" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Araç Servis Takibi</title>
+
+    <title>Araç Takip</title>
 
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: #f4f6f9;
+            background: #f4f6f8;
             margin: 0;
             padding: 30px;
         }
 
         .container {
-            max-width: 600px;
+            max-width: 900px;
             margin: auto;
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
         h1 {
             text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            margin-top: 0;
         }
 
         .bilgi {
-            margin: 20px 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
         }
 
-        .satir {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
+        .servis {
+            border-left: 5px solid #333;
+            padding: 15px;
+            margin-top: 15px;
+            background: #f8f8f8;
+            border-radius: 6px;
+        }
+
+        .toplam {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 10px;
         }
 
         .durum {
-            margin-top: 25px;
-            padding: 20px;
-            background: #e8f5e9;
-            border-radius: 10px;
-            text-align: center;
-            font-size: 20px;
             font-weight: bold;
+        }
+
+        .butonlar {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .buton {
+            display: inline-block;
+            padding: 10px 15px;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+
+        .duzenle {
+            background: #0d6efd;
+        }
+
+        .sil {
+            background: #dc3545;
+        }
+
+        .geri {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 15px;
+            background: #333;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+
+        @media (max-width: 600px) {
+            .bilgi {
+                grid-template-columns: 1fr;
+            }
+
+            body {
+                padding: 15px;
+            }
         }
     </style>
 </head>
@@ -51,43 +110,116 @@
 
 <div class="container">
 
-    <h1>🚗 AutoServis</h1>
+    <h1>🚗 Araç Takip</h1>
 
-    <h2>Servis Bilgileri</h2>
+    <!-- ARAÇ BİLGİLERİ -->
+    <div class="card">
 
-    <div class="bilgi">
+        <h2>🚘 Araç Bilgileri</h2>
 
-        <div class="satir">
-            <strong>Plaka:</strong>
-            <span th:text="${arac.plaka}"></span>
-        </div>
+        <div class="bilgi">
 
-        <div class="satir">
-            <strong>Marka:</strong>
-            <span th:text="${arac.marka}"></span>
-        </div>
+            <div>
+                <strong>Plaka:</strong>
+                <span th:text="${arac.plaka}"></span>
+            </div>
 
-        <div class="satir">
-            <strong>Model:</strong>
-            <span th:text="${arac.model}"></span>
-        </div>
+            <div>
+                <strong>Marka:</strong>
+                <span th:text="${arac.marka}"></span>
+            </div>
 
-        <div class="satir">
-            <strong>Yıl:</strong>
-            <span th:text="${arac.yil}"></span>
+            <div>
+                <strong>Model:</strong>
+                <span th:text="${arac.model}"></span>
+            </div>
+
+            <div>
+                <strong>Yıl:</strong>
+                <span th:text="${arac.yil}"></span>
+            </div>
+
+            <div>
+                <strong>Telefon:</strong>
+                <span th:text="${arac.telefon}"></span>
+            </div>
+
+            <div>
+                <strong>Durum:</strong>
+                <span class="durum" th:text="${arac.durum}"></span>
+            </div>
+
         </div>
 
     </div>
 
-    <div class="durum">
-        Servis Durumu:
-        <br><br>
-        <span th:text="${arac.durum}"></span>
+    <!-- SERVİS KAYITLARI -->
+    <div class="card">
+
+        <h2>🔧 Servis Kayıtları</h2>
+
+        <div th:if="${#lists.isEmpty(servisKayitlari)}">
+            <p>Bu araca ait henüz servis kaydı bulunmuyor.</p>
+        </div>
+
+        <div th:each="servis : ${servisKayitlari}" class="servis">
+
+            <p>
+                <strong>📅 Tarih:</strong>
+                <span th:text="${servis.tarih}"></span>
+            </p>
+
+            <p>
+                <strong>🔧 İşlem:</strong>
+                <span th:text="${servis.islem}"></span>
+            </p>
+
+            <p>
+                <strong>📝 Açıklama:</strong>
+                <span th:text="${servis.aciklama}"></span>
+            </p>
+
+            <p>
+                <strong>💼 İşçilik:</strong>
+                <span th:text="${servis.iscilikUcreti} + ' TL'"></span>
+            </p>
+
+            <p>
+                <strong>🔩 Parça:</strong>
+                <span th:text="${servis.parcaUcreti} + ' TL'"></span>
+            </p>
+
+            <p class="toplam">
+                💰 Toplam:
+                <span th:text="${servis.toplamUcret} + ' TL'"></span>
+            </p>
+
+            <p>
+                <strong>📌 Durum:</strong>
+                <span class="durum" th:text="${servis.durum}"></span>
+            </p>
+
+            <!-- DÜZENLE VE SİL BUTONLARI -->
+            <div class="butonlar">
+
+                <a class="buton duzenle"
+                   th:href="@{/servis-duzenle/{id}(id=${servis.id})}">
+                    ✏️ Düzenle
+                </a>
+
+                <a class="buton sil"
+                   th:href="@{/servis-sil/{id}(id=${servis.id})}"
+                   onclick="return confirm('Bu servis kaydını silmek istediğine emin misin?')">
+                    🗑️ Sil
+                </a>
+
+            </div>
+
+        </div>
+
     </div>
 
-    <p style="text-align:center; margin-top:25px;">
-        Aracınızın servis işlemleriyle ilgili güncel durum yukarıda belirtilmiştir.
-    </p>
+    <a href="/araclar" class="geri">⬅ Araçlar Sayfasına Dön</a>
 
 </div>
 
