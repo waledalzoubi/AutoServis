@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aracımın Servis Durumu</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f4f8;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 750px;
+            margin: auto;
+        }
+
+        .kart {
+            background: white;
+            padding: 20px;
+            margin-bottom: 18px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px #00000010;
+        }
+
+        h1, h2 {
+            color: #172554;
+        }
+
+        .bilgi {
+            margin: 12px 0;
+        }
+
+        .kayit {
+            padding: 14px;
+            margin-top: 12px;
+            background: #f8fafc;
+            border-left: 4px solid #1746a2;
+            border-radius: 6px;
+        }
+
+        .toplam {
+            font-size: 25px;
+            font-weight: bold;
+            color: #15803d;
+        }
+
+        .geri {
+            display: inline-block;
+            padding: 12px 16px;
+            background: #172554;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🚗 Aracımın Servis Durumu</h1>
+
+    <div class="kart">
+        <h2>🚘 Araç Bilgileri</h2>
+
+        <div class="bilgi">
+            <strong>Plaka:</strong>
+            <span th:text="${arac.plaka}"></span>
+        </div>
+
+        <div class="bilgi">
+            <strong>Marka:</strong>
+            <span th:text="${arac.marka}"></span>
+        </div>
+
+        <div class="bilgi">
+            <strong>Model:</strong>
+            <span th:text="${arac.model}"></span>
+        </div>
+
+        <div class="bilgi">
+            <strong>Servis durumu:</strong>
+            <span th:text="${arac.durum}"></span>
+        </div>
+    </div>
+
+    <div class="kart">
+        <h2>🔧 Yapılan İşlemler ve Masraflar</h2>
+
+        <div th:if="${#lists.isEmpty(servisKayitlari)}">
+            <p>Henüz servis kaydı eklenmemiş.</p>
+        </div>
+
+        <div th:each="servis : ${servisKayitlari}" class="kayit">
+
+            <p>
+                <strong>Tarih:</strong>
+                <span th:text="${servis.tarih}"></span>
+            </p>
+
+            <p>
+                <strong>İşlem:</strong>
+                <span th:text="${servis.islem}"></span>
+            </p>
+
+            <p>
+                <strong>Açıklama:</strong>
+                <span th:text="${servis.aciklama}"></span>
+            </p>
+
+            <p>
+                <strong>İşçilik ücreti:</strong>
+                <span th:text="${#numbers.formatDecimal(servis.iscilikUcreti, 1, 2)}"></span>
+                TL
+            </p>
+
+            <p>
+                <strong>Parça ücreti:</strong>
+                <span th:text="${#numbers.formatDecimal(servis.parcaUcreti, 1, 2)}"></span>
+                TL
+            </p>
+
+            <p>
+                <strong>İşlem toplamı:</strong>
+                <span th:text="${#numbers.formatDecimal(servis.toplamUcret, 1, 2)}"></span>
+                TL
+            </p>
+
+            <p>
+                <strong>Durum:</strong>
+                <span th:text="${servis.durum}"></span>
+            </p>
+
+        </div>
+    </div>
+
+    <div class="kart">
+        <h2>💰 Toplam Servis Masrafı</h2>
+
+        <div class="toplam">
+            <span th:text="${#numbers.formatDecimal(toplamMaliyet, 1, 2)}"></span>
+            TL
+        </div>
+
+        <p>Bu tutar, sisteme kaydedilmiş servis işlemlerinin toplamıdır.</p>
+    </div>
+
+    <a href="/musteri" class="geri">Yeni Sorgulama</a>
+
+</div>
+
+</body>
+</html>

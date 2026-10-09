@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servis Kayıtları - AutoServis</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f4f8;
+            margin: 0;
+            padding: 25px;
+            color: #222;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 22px;
+            margin-bottom: 22px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .bilgi {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .bilgi div {
+            padding: 10px;
+            background: #f5f7fa;
+            border-radius: 6px;
+            overflow-wrap: anywhere;
+        }
+
+        .islem {
+            border-top: 1px solid #ddd;
+            padding-top: 12px;
+        }
+
+        .islem p {
+            line-height: 1.5;
+        }
+
+        .toplam {
+            font-size: 19px;
+            font-weight: bold;
+            color: #167044;
+        }
+
+        .durum {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #e3f2fd;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .butonlar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .buton {
+            display: inline-block;
+            padding: 11px 15px;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .duzenle {
+            background: #1565c0;
+        }
+
+        .sil {
+            background: #c62828;
+        }
+
+        .geri {
+            background: #333;
+        }
+
+        .bos {
+            text-align: center;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+
+            .bilgi {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🔧 Servis Kayıtları</h1>
+
+    <div th:if="${#lists.isEmpty(servisKayitlari)}" class="bos">
+        <h2>Henüz servis kaydı yok</h2>
+        <p>Yeni bir servis kaydı ekleyerek başlayabilirsin.</p>
+    </div>
+
+    <div th:each="servis : ${servisKayitlari}" class="card">
+
+        <h2>🚗 Araç Bilgileri</h2>
+
+        <div class="bilgi">
+            <div>
+                <strong>Plaka:</strong>
+                <span th:text="${servis.arac.plaka}"></span>
+            </div>
+
+            <div>
+                <strong>Marka:</strong>
+                <span th:text="${servis.arac.marka}"></span>
+            </div>
+
+            <div>
+                <strong>Model:</strong>
+                <span th:text="${servis.arac.model}"></span>
+            </div>
+
+            <div>
+                <strong>Yıl:</strong>
+                <span th:text="${servis.arac.yil}"></span>
+            </div>
+
+            <div>
+                <strong>Tarih:</strong>
+                <span th:text="${servis.tarih}"></span>
+            </div>
+
+            <div>
+                <strong>Durum:</strong>
+                <span class="durum" th:text="${servis.durum}"></span>
+            </div>
+        </div>
+
+        <div class="islem">
+            <h3>🛠️ İşlem Detayları</h3>
+
+            <p>
+                <strong>İşlem:</strong>
+                <span th:text="${servis.islem}"></span>
+            </p>
+
+            <p>
+                <strong>Açıklama:</strong>
+                <span th:text="${servis.aciklama}"></span>
+            </p>
+
+            <p>
+                <strong>İşçilik Ücreti:</strong>
+                <span th:text="${#numbers.formatDecimal(servis.iscilikUcreti, 1, 2)}"></span> TL
+            </p>
+
+            <p>
+                <strong>Parça Ücreti:</strong>
+                <span th:text="${#numbers.formatDecimal(servis.parcaUcreti, 1, 2)}"></span> TL
+            </p>
+
+            <p class="toplam">
+                Toplam Ücret:
+                <span th:text="${#numbers.formatDecimal(servis.toplamUcret, 1, 2)}"></span> TL
+            </p>
+        </div>
+
+        <div class="butonlar">
+
+            <a class="buton duzenle"
+               th:href="@{/servis-duzenle/{id}(id=${servis.id})}">
+                ✏️ Servisi Düzenle
+            </a>
+
+            <a class="buton sil"
+               th:href="@{/servis-sil/{id}(id=${servis.id})}"
+               onclick="return confirm('Bu servis kaydını silmek istediğinize emin misiniz?')">
+                🗑️ Servisi Sil
+            </a>
+
+        </div>
+
+    </div>
+
+    <a href="/araclar" class="buton geri">⬅️ Araçlar Sayfasına Dön</a>
+
+</div>
+
+</body>
+</html>
