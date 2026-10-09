@@ -1,106 +1,195 @@
 <!DOCTYPE html>
 <html lang="tr" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoServis - Müşteri Araç Takibi</title>
+
+    <title>Müşteri Araç Sorgulama - AutoServis</title>
 
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f1f4f8;
-            margin: 0;
-            padding: 25px;
+        * {
+            box-sizing: border-box;
         }
 
-        .kutu {
+        body {
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background: #f1f4f9;
+            color: #202938;
+        }
+
+        .kart {
+            width: 100%;
             max-width: 430px;
-            margin: 50px auto;
+            padding: 30px;
             background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 3px 12px #00000015;
+            border-radius: 16px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 42px;
+            margin-bottom: 10px;
         }
 
         h1 {
+            margin: 0 0 10px;
             text-align: center;
-            color: #172554;
+            font-size: 26px;
         }
 
-        p {
-            color: #555;
+        .aciklama {
+            margin-bottom: 28px;
+            text-align: center;
+            color: #64748b;
             line-height: 1.5;
         }
 
         label {
             display: block;
-            margin-top: 18px;
+            margin: 18px 0 8px;
             font-weight: bold;
         }
 
         input {
-            box-sizing: border-box;
+            display: block;
             width: 100%;
-            padding: 12px;
+            padding: 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
+        }
+
+        #plaka {
+            text-transform: uppercase;
+        }
+
+        .bilgi {
             margin-top: 7px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
+            font-size: 12px;
+            color: #64748b;
         }
 
         button {
+            display: block;
             width: 100%;
-            padding: 13px;
-            margin-top: 22px;
-            background: #1746a2;
-            color: white;
+            margin-top: 25px;
+            padding: 14px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
+            background: #198754;
+            color: white;
             font-size: 16px;
+            font-weight: bold;
             cursor: pointer;
         }
 
+        button:hover {
+            background: #157347;
+        }
+
         .hata {
-            color: #b91c1c;
+            margin-top: 18px;
+            padding: 12px;
+            border-radius: 8px;
             background: #fee2e2;
-            padding: 10px;
-            border-radius: 6px;
+            color: #b91c1c;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .alt-yazi {
+            margin-top: 25px;
+            text-align: center;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .ana-sayfa {
+            display: block;
+            margin-top: 18px;
+            text-align: center;
+            color: #0d6efd;
+            text-decoration: none;
         }
     </style>
 </head>
 
 <body>
 
-<div class="kutu">
+<div class="kart">
 
-    <h1>🚗 AutoServis</h1>
+    <div class="logo">🚗</div>
 
-    <p>
-        Aracınızın servis durumunu ve masraflarını görüntülemek
-        için aşağıdaki bilgileri girin.
+    <h1>AutoServis</h1>
+
+    <p class="aciklama">
+        Aracınızın servis durumunu, yapılan işlemleri
+        ve ücret bilgilerini görüntüleyin.
     </p>
-
-    <p class="hata" th:if="${hata}" th:text="${hata}"></p>
 
     <form action="/musteri-sorgula" method="post">
 
-        <label>Aracınızın plakası</label>
-        <input type="text"
-               name="plaka"
-               placeholder="34 ABC 123"
-               required>
+        <label for="plaka">Araç Plakası</label>
 
-        <label>Telefon numaranızın son 4 hanesi</label>
-        <input type="text"
-               name="telefonSon4"
-               placeholder="1234"
-               inputmode="numeric"
-               maxlength="4"
-               pattern="[0-9]{4}"
-               required>
+        <input
+                type="text"
+                id="plaka"
+                name="plaka"
+                placeholder="Örn. 34ABC123"
+                autocomplete="off"
+                autocapitalize="characters"
+                spellcheck="false"
+                oninput="this.value = this.value.toLocaleUpperCase('tr-TR').replace(/\s/g, '')"
+                required>
 
-        <button type="submit">Aracımı Sorgula</button>
+        <div class="bilgi">
+            Küçük harfle yazsanız bile plaka otomatik büyük harfe dönüşür.
+        </div>
+
+        <label for="telefonSon4">Telefon Numaranızın Son 4 Hanesi</label>
+
+        <input
+                type="tel"
+                id="telefonSon4"
+                name="telefonSon4"
+                placeholder="Örn. 1234"
+                inputmode="numeric"
+                pattern="[0-9]{4}"
+                maxlength="4"
+                autocomplete="off"
+                oninput="this.value = this.value.replace(/\D/g, '').slice(0, 4)"
+                required>
+
+        <button type="submit">🔍 Aracımı Sorgula</button>
 
     </form>
+
+    <div class="hata"
+         th:if="${hata != null}"
+         th:text="${hata}">
+    </div>
+
+    <a class="ana-sayfa" href="/">
+        ← Ana sayfaya dön
+    </a>
+
+    <div class="alt-yazi">
+        AutoServis Araç Takip Sistemi
+    </div>
 
 </div>
 
