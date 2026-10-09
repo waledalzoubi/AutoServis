@@ -4,19 +4,42 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class HomeController {
 
     private final AracRepository aracRepository;
+    private final ServisKaydiRepository servisKaydiRepository;
 
-    public HomeController(AracRepository aracRepository) {
+    public HomeController(AracRepository aracRepository,
+                          ServisKaydiRepository servisKaydiRepository) {
         this.aracRepository = aracRepository;
+        this.servisKaydiRepository = servisKaydiRepository;
     }
 
     @GetMapping("/")
-    public String home() {
+    public String home(Model model) {
+
+        long aracSayisi = aracRepository.count();
+
+        var servisler = servisKaydiRepository.findAll();
+
+        long servisSayisi = servisler.size();
+
+        long tamamlananIs = servisler.stream()
+                .filter(s -> s.getDurum() != null)
+                .filter(s -> s.getDurum().equalsIgnoreCase("Tamamlandı"))
+                .count();
+
+        double toplamGelir = servisler.stream()
+                .mapToDouble(s -> s.getToplamUcret())
+                .sum();
+
+        model.addAttribute("aracSayisi", aracSayisi);
+        model.addAttribute("servisSayisi", servisSayisi);
+        model.addAttribute("tamamlananIs", tamamlananIs);
+        model.addAttribute("toplamGelir", toplamGelir);
+
         return "index";
     }
 
@@ -26,40 +49,18 @@ public class HomeController {
         return "araclar";
     }
 
-    @GetMapping("/arac-ekle")
-    public String aracEkle() {
-        return "arac-ekle";
-    }
-
-    @GetMapping("/arac-kaydet")
-    public String aracKaydet(
-            @RequestParam String plaka,
-            @RequestParam String marka,
-            @RequestParam String model,
-            @RequestParam int yil,
-            @RequestParam String telefon,
-            @RequestParam String durum) {
-
-        Arac arac = new Arac();
-
-        arac.setPlaka(plaka);
-        arac.setMarka(marka);
-        arac.setModel(model);
-        arac.setYil(yil);
-        arac.setTelefon(telefon);
-        arac.setDurum(durum);
-
-        aracRepository.save(arac);
-
-        return "redirect:/araclar";
-    }
-
     @GetMapping("/takip/{id}")
     public String takip(@PathVariable Long id, Model model) {
 
         Arac arac = aracRepository.findById(id).orElse(null);
 
+        if (arac == null) {
+            return "redirect:/";
+        }
+
         model.addAttribute("arac", arac);
+        model.addAttribute("servisKayitlari",
+                servisKaydiRepository.findByAracId(id));
 
         return "takip";
     }

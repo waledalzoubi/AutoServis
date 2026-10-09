@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servis Kaydı Düzenle</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 25px;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        input, select, textarea {
+            box-sizing: border-box;
+            width: 100%;
+            padding: 11px;
+            margin-top: 6px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        button, .geri {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 6px;
+            background: #222;
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .geri {
+            background: #666;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🔧 Servis Kaydı Düzenle</h1>
+
+    <form action="/servis-guncelle" method="post">
+
+        <input type="hidden" name="id" th:value="${servisKaydi.id}">
+
+        <label>Araç</label>
+        <select name="aracId" required>
+            <option th:each="arac : ${araclar}"
+                    th:value="${arac.id}"
+                    th:text="${arac.plaka + ' - ' + arac.marka + ' ' + arac.model}"
+                    th:selected="${servisKaydi.arac != null and arac.id == servisKaydi.arac.id}">
+            </option>
+        </select>
+
+        <label>İşlem</label>
+        <input type="text" name="islem"
+               th:value="${servisKaydi.islem}" required>
+
+        <label>Açıklama</label>
+        <textarea name="aciklama" rows="4"
+                  th:text="${servisKaydi.aciklama}"></textarea>
+
+        <label>Tarih</label>
+        <input type="date" name="tarih"
+               th:value="${servisKaydi.tarih}" required>
+
+        <label>İşçilik Ücreti (TL)</label>
+        <input type="number" name="iscilikUcreti" step="0.01"
+               min="0" th:value="${servisKaydi.iscilikUcreti}" required>
+
+        <label>Parça Ücreti (TL)</label>
+        <input type="number" name="parcaUcreti" step="0.01"
+               min="0" th:value="${servisKaydi.parcaUcreti}" required>
+
+        <label>Servis Durumu</label>
+        <select name="durum" required>
+            <option value="Bekliyor"
+                    th:selected="${servisKaydi.durum == 'Bekliyor'}">Bekliyor</option>
+
+            <option value="İşlemde"
+                    th:selected="${servisKaydi.durum == 'İşlemde'}">İşlemde</option>
+
+            <option value="Tamamlandı"
+                    th:selected="${servisKaydi.durum == 'Tamamlandı'}">Tamamlandı</option>
+
+            <option value="Teslim Edildi"
+                    th:selected="${servisKaydi.durum == 'Teslim Edildi'}">Teslim Edildi</option>
+        </select>
+
+        <button type="submit">💾 Değişiklikleri Kaydet</button>
+
+        <a href="/araclar" class="geri">Geri Dön</a>
+
+    </form>
+
+</div>
+
+</body>
+</html>

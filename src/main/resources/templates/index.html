@@ -1,162 +1,276 @@
+```html
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoServis Yönetim Sistemi</title>
+    <title>AutoServis | Yönetim Paneli</title>
 
     <style>
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
         }
 
         body {
+            margin: 0;
             font-family: Arial, sans-serif;
-            background: #f4f6f9;
-            color: #222;
+            background: #f1f4f9;
+            color: #202938;
         }
 
-        .header {
-            background: #1f2937;
+        header {
+            background: #172337;
             color: white;
-            padding: 20px 35px;
+            padding: 22px;
+        }
+
+        .header-inner {
+            max-width: 1100px;
+            margin: auto;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            flex-wrap: wrap;
         }
 
-        .header h1 {
-            font-size: 24px;
+        header h1 {
+            margin: 0;
+            font-size: 25px;
         }
 
-        .header span {
-            font-size: 14px;
-            color: #d1d5db;
+        header p {
+            margin: 7px 0 0;
+            color: #cbd5e1;
         }
 
         .container {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 20px;
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 18px;
         }
 
         .welcome {
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         .welcome h2 {
-            font-size: 28px;
             margin-bottom: 8px;
         }
 
         .welcome p {
-            color: #6b7280;
+            color: #64748b;
         }
 
-        .cards {
+        .stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 18px;
         }
 
-        .card {
+        .stat {
             background: white;
-            padding: 25px;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            transition: 0.2s;
-            cursor: pointer;
+            padding: 22px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+            border-top: 4px solid #2563eb;
         }
 
-        .card:hover {
-            transform: translateY(-4px);
+        .stat:nth-child(2) {
+            border-top-color: #0891b2;
         }
 
-        .icon {
-            font-size: 35px;
-            margin-bottom: 15px;
+        .stat:nth-child(3) {
+            border-top-color: #16a34a;
         }
 
-        .card h3 {
-            margin-bottom: 8px;
+        .stat:nth-child(4) {
+            border-top-color: #d97706;
         }
 
-        .card p {
-            color: #6b7280;
+        .stat .icon {
+            font-size: 28px;
+        }
+
+        .stat h3 {
             font-size: 14px;
+            color: #64748b;
+            margin: 15px 0 8px;
         }
 
-        .footer {
+        .stat .number {
+            font-size: 27px;
+            font-weight: bold;
+            overflow-wrap: anywhere;
+        }
+
+        .section-title {
+            margin: 32px 0 18px;
+        }
+
+        .menu {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .menu a {
+            display: block;
+            background: white;
+            padding: 23px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #202938;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .menu a:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 18px rgba(0,0,0,0.1);
+        }
+
+        .menu .icon {
+            font-size: 30px;
+        }
+
+        .menu h3 {
+            margin: 13px 0 8px;
+        }
+
+        .menu p {
+            margin: 0;
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .menu .musteri-kart {
+            border: 2px solid #2563eb;
+            background: #eff6ff;
+        }
+
+        footer {
             text-align: center;
-            margin-top: 50px;
-            padding: 20px;
-            color: #9ca3af;
+            padding: 25px;
+            margin-top: 35px;
+            color: #64748b;
             font-size: 13px;
+        }
+
+        @media (max-width: 850px) {
+            .stats {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .menu {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 500px) {
+            .stats, .menu {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 21px;
+            }
         }
     </style>
 </head>
 
 <body>
 
-<header class="header">
-    <h1>🚗 AutoServis</h1>
-    <span>Yönetim Sistemi</span>
+<header>
+    <div class="header-inner">
+        <div>
+            <h1>🚗 AutoServis</h1>
+            <p>Araç Servis Yönetim Sistemi</p>
+        </div>
+    </div>
 </header>
 
 <main class="container">
 
     <section class="welcome">
-        <h2>Hoş Geldiniz 👋</h2>
-        <p>AutoServis yönetim panelinden işlemlerinizi kolayca yönetin.</p>
+        <h2>Yönetim Paneline Hoş Geldiniz</h2>
+        <p>Servis işletmenizin genel durumunu buradan takip edebilirsiniz.</p>
     </section>
 
-    <section class="cards">
+    <section class="stats">
 
-        <div class="card" onclick="window.location.href='/araclar'">
-            <div class="icon">🚗</div>
-            <h3>Araçlar</h3>
-            <p>Kayıtlı araçları görüntüle ve yeni araç ekle.</p>
+        <div class="stat">
+            <div class="icon">🚘</div>
+            <h3>Kayıtlı Araç</h3>
+            <div class="number" th:text="${aracSayisi}">0</div>
         </div>
 
-        <div class="card">
-            <div class="icon">👤</div>
-            <h3>Müşteriler</h3>
-            <p>Müşteri bilgilerini yönet ve yeni müşteri kaydet.</p>
-        </div>
-
-        <div class="card">
+        <div class="stat">
             <div class="icon">🔧</div>
-            <h3>Servis Kayıtları</h3>
-            <p>Araçların servis ve bakım işlemlerini takip et.</p>
+            <h3>Servis Kaydı</h3>
+            <div class="number" th:text="${servisSayisi}">0</div>
         </div>
 
-        <div class="card">
-            <div class="icon">📅</div>
-            <h3>Randevular</h3>
-            <p>Servis randevularını oluştur ve takip et.</p>
+        <div class="stat">
+            <div class="icon">✅</div>
+            <h3>Tamamlanan İş</h3>
+            <div class="number" th:text="${tamamlananIs}">0</div>
         </div>
 
-        <div class="card">
+        <div class="stat">
             <div class="icon">💰</div>
-            <h3>Ödemeler</h3>
-            <p>Servis ücretlerini ve ödeme durumlarını yönet.</p>
-        </div>
-
-        <div class="card">
-            <div class="icon">📊</div>
-            <h3>Raporlar</h3>
-            <p>Servis ve işletme verilerini görüntüle.</p>
+            <h3>Toplam Servis Tutarı</h3>
+            <div class="number">
+                <span th:text="${#numbers.formatDecimal(toplamGelir, 1, 2)}">0,00</span> TL
+            </div>
         </div>
 
     </section>
 
-    <footer class="footer">
-        © 2026 AutoServis - Tüm hakları saklıdır.
-    </footer>
+    <h2 class="section-title">Hızlı İşlemler</h2>
+
+    <section class="menu">
+
+        <a href="/araclar">
+            <div class="icon">🚘</div>
+            <h3>Araçlar</h3>
+            <p>Kayıtlı araçları görüntüle, düzenle veya sil.</p>
+        </a>
+
+        <a href="/arac-ekle">
+            <div class="icon">➕</div>
+            <h3>Araç Ekle</h3>
+            <p>Yeni bir aracı sisteme kaydet.</p>
+        </a>
+
+        <a href="/servis-ekle">
+            <div class="icon">🛠️</div>
+            <h3>Servis Kaydı Ekle</h3>
+            <p>Araca yeni bir servis işlemi kaydet.</p>
+        </a>
+
+        <a href="/servisler">
+            <div class="icon">📋</div>
+            <h3>Servis Kayıtları</h3>
+            <p>Servis kayıtlarını görüntüle, düzenle veya sil.</p>
+        </a>
+
+        <a href="/musteri" class="musteri-kart">
+            <div class="icon">👤</div>
+            <h3>Müşteri Araç Takibi</h3>
+            <p>Müşteri ekranını aç; plaka ve telefonun son 4 hanesiyle sorgulamayı test et.</p>
+        </a>
+
+    </section>
 
 </main>
 
+<footer>
+    AutoServis Yönetim Sistemi
+</footer>
+
 </body>
 </html>
+```
