@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoServis - Müşteri Araç Takibi</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f4f8;
+            margin: 0;
+            padding: 25px;
+        }
+
+        .kutu {
+            max-width: 430px;
+            margin: 50px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px #00000015;
+        }
+
+        h1 {
+            text-align: center;
+            color: #172554;
+        }
+
+        p {
+            color: #555;
+            line-height: 1.5;
+        }
+
+        label {
+            display: block;
+            margin-top: 18px;
+            font-weight: bold;
+        }
+
+        input {
+            box-sizing: border-box;
+            width: 100%;
+            padding: 12px;
+            margin-top: 7px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            margin-top: 22px;
+            background: #1746a2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .hata {
+            color: #b91c1c;
+            background: #fee2e2;
+            padding: 10px;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="kutu">
+
+    <h1>🚗 AutoServis</h1>
+
+    <p>
+        Aracınızın servis durumunu ve masraflarını görüntülemek
+        için aşağıdaki bilgileri girin.
+    </p>
+
+    <p class="hata" th:if="${hata}" th:text="${hata}"></p>
+
+    <form action="/musteri-sorgula" method="post">
+
+        <label>Aracınızın plakası</label>
+        <input type="text"
+               name="plaka"
+               placeholder="34 ABC 123"
+               required>
+
+        <label>Telefon numaranızın son 4 hanesi</label>
+        <input type="text"
+               name="telefonSon4"
+               placeholder="1234"
+               inputmode="numeric"
+               maxlength="4"
+               pattern="[0-9]{4}"
+               required>
+
+        <button type="submit">Aracımı Sorgula</button>
+
+    </form>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servis Kaydı Ekle</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 25px;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #1f2937;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .geri {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🔧 Servis Kaydı Ekle</h1>
+
+    <form action="/servis-kaydet" method="post">
+
+        <label>Araç Seç:</label>
+
+        <select name="aracId" required>
+
+            <option value="">Araç seçiniz</option>
+
+            <option th:each="arac : ${araclar}"
+                    th:value="${arac.id}"
+                    th:text="${arac.plaka + ' - ' + arac.marka + ' ' + arac.model}">
+            </option>
+
+        </select>
+
+
+        <label>Yapılan İşlem:</label>
+
+        <input type="text"
+               name="islem"
+               placeholder="Örn: Yağ ve filtre değişimi"
+               required>
+
+
+        <label>Açıklama:</label>
+
+        <textarea name="aciklama"
+                  placeholder="Yapılan işlemler hakkında açıklama"></textarea>
+
+
+        <label>Tarih:</label>
+
+        <input type="date"
+               name="tarih"
+               required>
+
+
+        <label>İşçilik Ücreti:</label>
+
+        <input type="number"
+               step="0.01"
+               min="0"
+               name="iscilikUcreti"
+               placeholder="0"
+               required>
+
+
+        <label>Parça Ücreti:</label>
+
+        <input type="number"
+               step="0.01"
+               min="0"
+               name="parcaUcreti"
+               placeholder="0"
+               required>
+
+
+        <label>Durum:</label>
+
+        <select name="durum" required>
+
+            <option value="">Durum seçiniz</option>
+            <option value="Bekliyor">Bekliyor</option>
+            <option value="İşlemde">İşlemde</option>
+            <option value="Tamamlandı">Tamamlandı</option>
+
+        </select>
+
+
+        <button type="submit">
+            💾 Servis Kaydını Kaydet
+        </button>
+
+    </form>
+
+    <a class="geri" href="/araclar">
+        ← Araçlar Sayfasına Dön
+    </a>
+
+</div>
+
+</body>
+</html>
