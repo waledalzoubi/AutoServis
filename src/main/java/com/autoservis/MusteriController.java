@@ -3,8 +3,8 @@ package com.autoservis;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
@@ -20,7 +20,6 @@ public class MusteriController {
     public MusteriController(
             AracRepository aracRepository,
             ServisKaydiRepository servisKaydiRepository) {
-
         this.aracRepository = aracRepository;
         this.servisKaydiRepository = servisKaydiRepository;
     }
@@ -32,80 +31,75 @@ public class MusteriController {
 
     @PostMapping("/musteri-sorgula")
     public String musteriSorgula(
-            @RequestParam String plaka,
-            @RequestParam String telefonSon4,
+            @RequestParam("plaka") String plaka,
+            @RequestParam("telefonSon4") String telefonSon4,
             Model model) {
 
-        // Girilen plakayı standartlaştır.
         String arananPlaka = normalizePlaka(plaka);
+        String arananTelefon = rakamlariAl(telefonSon4);
 
-        // Telefon alanından yalnızca rakamları al.
-        String sonDortHane = telefonSon4.replaceAll("\\D", "");
-
-        if (arananPlaka.isBlank() || sonDortHane.length() != 4) {
+        if (arananPlaka.isEmpty() || arananTelefon.length() != 4) {
             model.addAttribute(
                     "hata",
-                    "Plakanızı ve telefonunuzun son 4 hanesini doğru girin."
+                    "Lütfen plakanızı ve telefonunuzun son 4 hanesini girin."
             );
             return "musteri-giris";
         }
 
-        // Kayıtlı araçlarla karşılaştır.
-        Arac bulunanArac = aracRepository.findAll()
-                .stream()
-                .filter(arac -> {
-                    if (arac.getPlaka() == null
-                            || arac.getTelefon() == null) {
-                        return false;
-                    }
+        List<Arac> araclar = aracRepository.findAll();
 
-                    String kayitliPlaka =
-                            normalizePlaka(arac.getPlaka());
+        for (Arac arac : araclar) {
 
-                    String kayitliTelefon =
-                            arac.getTelefon().replaceAll("\\D", "");
+            if (arac.getPlaka() == null ||
+                    arac.getTelefon() == null) {
+                continue;
+            }
 
-                    return kayitliPlaka.equals(arananPlaka)
-                            && kayitliTelefon.length() >= 4
-                            && kayitliTelefon.endsWith(sonDortHane);
-                })
-                .findFirst()
-                .orElse(null);
+            String kayitliPlaka = normalizePlaka(arac.getPlaka());
+            String kayitliTelefon = rakamlariAl(arac.getTelefon());
 
-        if (bulunanArac == null) {
-            model.addAttribute(
-                    "hata",
-                    "Bilgiler eşleşmedi. Plaka ve telefonun son 4 hanesini kontrol edin."
-            );
-            return "musteri-giris";
+            boolean plakaDogru =
+                    kayitliPlaka.equals(arananPlaka);
+
+            boolean telefonDogru =
+                    kayitliTelefon.length() >= 4 &&
+                            kayitliTelefon.endsWith(arananTelefon);
+
+            if (plakaDogru && telefonDogru) {
+
+                if (arac.getTakipAnahtari() == null ||
+                        arac.getTakipAnahtari().isBlank()) {
+
+                    arac.setTakipAnahtari(
+                            UUID.randomUUID().toString()
+                    );
+
+                    arac = aracRepository.save(arac);
+                }
+
+                return "redirect:/musteri/takip/"
+                        + arac.getTakipAnahtari();
+            }
         }
 
-        // Eski araç kaydında takip anahtarı yoksa oluştur.
-        if (bulunanArac.getTakipAnahtari() == null
-                || bulunanArac.getTakipAnahtari().isBlank()) {
+        model.addAttribute(
+                "hata",
+                "Araç kaydı bulunamadı. Girilen bilgilerle eşleşen kayıt yok."
+        );
 
-            bulunanArac.setTakipAnahtari(
-                    UUID.randomUUID().toString()
-            );
-
-            bulunanArac = aracRepository.save(bulunanArac);
-        }
-
-        return "redirect:/musteri/takip/"
-                + bulunanArac.getTakipAnahtari();
+        return "musteri-giris";
     }
 
     @GetMapping("/musteri/takip/{anahtar}")
     public String ozelAracTakip(
-            @PathVariable String anahtar,
+            @PathVariable("anahtar") String anahtar,
             Model model) {
 
         Arac bulunanArac = aracRepository.findAll()
                 .stream()
                 .filter(arac ->
-                        arac.getTakipAnahtari() != null
-                                && arac.getTakipAnahtari().equals(anahtar)
-                )
+                        arac.getTakipAnahtari() != null &&
+                                arac.getTakipAnahtari().equals(anahtar))
                 .findFirst()
                 .orElse(null);
 
@@ -129,10 +123,21 @@ public class MusteriController {
         return "musteri-takip";
     }
 
-    // Türkçe karakterler, boşluklar ve küçük/büyük harf farklarını düzenle.
     private String normalizePlaka(String plaka) {
+        if (plaka == null) {
+            return "";
+        }
+
         return plaka
-                .replaceAll("\\s+", "")
-                .toUpperCase(Locale.forLanguageTag("tr-TR"));
+                .toUpperCase(new Locale("tr", "TR"))
+                .replaceAll("[^A-Z0-9ÇĞİÖŞÜ]", "");
+    }
+
+    private String rakamlariAl(String metin) {
+        if (metin == null) {
+            return "";
+        }
+
+        return metin.replaceAll("\\D", "");
     }
 }
