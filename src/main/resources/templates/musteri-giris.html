@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f1f4f9">
 
     <title>Müşteri Araç Sorgulama - AutoServis</title>
 
@@ -16,6 +17,7 @@
             margin: 0;
             padding: 20px;
             min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -28,7 +30,7 @@
             width: 100%;
             max-width: 430px;
             padding: 30px;
-            background: white;
+            background: #fff;
             border-radius: 16px;
             box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
         }
@@ -61,11 +63,16 @@
         input {
             display: block;
             width: 100%;
+            min-height: 48px;
             padding: 14px;
             border: 1px solid #cbd5e1;
             border-radius: 8px;
             font-size: 16px;
+            background: #fff;
+            color: #202938;
             outline: none;
+            -webkit-appearance: none;
+            appearance: none;
         }
 
         input:focus {
@@ -75,17 +82,20 @@
 
         #plaka {
             text-transform: uppercase;
+            autocapitalize: characters;
         }
 
         .bilgi {
             margin-top: 7px;
             font-size: 12px;
             color: #64748b;
+            line-height: 1.5;
         }
 
         button {
             display: block;
             width: 100%;
+            min-height: 48px;
             margin-top: 25px;
             padding: 14px;
             border: none;
@@ -95,10 +105,16 @@
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
+            touch-action: manipulation;
         }
 
         button:hover {
             background: #157347;
+        }
+
+        button:disabled {
+            opacity: 0.7;
+            cursor: wait;
         }
 
         .hata {
@@ -109,6 +125,7 @@
             color: #b91c1c;
             text-align: center;
             line-height: 1.5;
+            overflow-wrap: anywhere;
         }
 
         .alt-yazi {
@@ -121,9 +138,27 @@
         .ana-sayfa {
             display: block;
             margin-top: 18px;
+            padding: 8px;
             text-align: center;
             color: #0d6efd;
             text-decoration: none;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 14px;
+                align-items: flex-start;
+                padding-top: 30px;
+            }
+
+            .kart {
+                padding: 24px 20px;
+                border-radius: 12px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
         }
     </style>
 </head>
@@ -141,7 +176,11 @@
         ve ücret bilgilerini görüntüleyin.
     </p>
 
-    <form action="/musteri-sorgula" method="post">
+    <form id="sorgulamaFormu"
+          th:action="@{/musteri-sorgula}"
+          action="/musteri-sorgula"
+          method="post"
+          accept-charset="UTF-8">
 
         <label for="plaka">Araç Plakası</label>
 
@@ -153,14 +192,17 @@
                 autocomplete="off"
                 autocapitalize="characters"
                 spellcheck="false"
-                oninput="this.value = this.value.toLocaleUpperCase('tr-TR').replace(/\s/g, '')"
+                enterkeyhint="next"
                 required>
 
         <div class="bilgi">
-            Küçük harfle yazsanız bile plaka otomatik büyük harfe dönüşür.
+            Plakayı küçük veya büyük harfle yazabilirsiniz.
+            Sistem sorgulamadan önce büyük harfe dönüştürür.
         </div>
 
-        <label for="telefonSon4">Telefon Numaranızın Son 4 Hanesi</label>
+        <label for="telefonSon4">
+            Telefon Numaranızın Son 4 Hanesi
+        </label>
 
         <input
                 type="tel"
@@ -170,20 +212,25 @@
                 inputmode="numeric"
                 pattern="[0-9]{4}"
                 maxlength="4"
+                minlength="4"
                 autocomplete="off"
-                oninput="this.value = this.value.replace(/\D/g, '').slice(0, 4)"
+                enterkeyhint="go"
                 required>
 
-        <button type="submit">🔍 Aracımı Sorgula</button>
+        <button id="sorgulaButonu" type="submit">
+            🔍 Aracımı Sorgula
+        </button>
 
     </form>
 
     <div class="hata"
          th:if="${hata != null}"
-         th:text="${hata}">
+         th:text="${hata}"
+         role="alert"
+         aria-live="polite">
     </div>
 
-    <a class="ana-sayfa" href="/">
+    <a class="ana-sayfa" th:href="@{/}" href="/">
         ← Ana sayfaya dön
     </a>
 
@@ -192,6 +239,58 @@
     </div>
 
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const plakaInput = document.getElementById("plaka");
+        const telefonInput = document.getElementById("telefonSon4");
+        const form = document.getElementById("sorgulamaFormu");
+        const buton = document.getElementById("sorgulaButonu");
+
+        function plakayiDuzenle() {
+            plakaInput.value = plakaInput.value
+                .toLocaleUpperCase("tr-TR")
+                .replace(/\s+/g, "")
+                .replace(/[^A-Z0-9ÇĞİÖŞÜ]/g, "");
+        }
+
+        plakaInput.addEventListener("input", plakayiDuzenle);
+        plakaInput.addEventListener("change", plakayiDuzenle);
+        plakaInput.addEventListener("blur", plakayiDuzenle);
+
+        telefonInput.addEventListener("input", function () {
+            telefonInput.value = telefonInput.value
+                .replace(/\D/g, "")
+                .slice(0, 4);
+        });
+
+        form.addEventListener("submit", function (event) {
+            plakayiDuzenle();
+
+            telefonInput.value = telefonInput.value
+                .replace(/\D/g, "")
+                .slice(0, 4);
+
+            if (plakaInput.value.trim() === "") {
+                event.preventDefault();
+                plakaInput.focus();
+                return;
+            }
+
+            if (!/^\d{4}$/.test(telefonInput.value)) {
+                event.preventDefault();
+                alert("Lütfen telefon numaranızın son 4 hanesini girin.");
+                telefonInput.focus();
+                return;
+            }
+
+            buton.disabled = true;
+            buton.textContent = "Sorgulanıyor...";
+        });
+
+    });
+</script>
 
 </body>
 </html>
