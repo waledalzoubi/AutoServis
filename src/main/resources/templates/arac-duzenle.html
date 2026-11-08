@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Araç Düzenle</title>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#101820">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <script defer src="/pwa-register.js"></script>
 </head>
 <body>
 
@@ -36,6 +40,11 @@
     <p>
         <label>Telefon:</label><br>
         <input type="text" name="telefon" th:value="${arac.telefon}" required>
+    </p>
+
+    <p>
+        <label>Şasi Numarası:</label><br>
+        <input type="text" name="sasiNumarasi" th:value="${arac.sasiNumarasi}" minlength="17" maxlength="17" pattern="[A-HJ-NPR-Z0-9]{17}" required>
     </p>
 
     <p>

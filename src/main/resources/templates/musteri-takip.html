@@ -57,7 +57,35 @@
             text-decoration: none;
             border-radius: 6px;
         }
+
+        .asamalar {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            padding: 0;
+            list-style: none;
+        }
+
+        .asama {
+            padding: 12px;
+            border-radius: 8px;
+            background: #e5e7eb;
+            color: #475569;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .asama.tamamlandi { background: #dcfce7; color: #166534; }
+        .asama.aktif { background: #dbeafe; color: #1d4ed8; font-weight: bold; outline: 2px solid #3b82f6; }
+
+        @media (max-width: 600px) {
+            .asamalar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
     </style>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#101820">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <script defer src="/pwa-register.js"></script>
 </head>
 
 <body>
@@ -88,6 +116,16 @@
             <strong>Servis durumu:</strong>
             <span th:text="${arac.durum}"></span>
         </div>
+    </div>
+
+    <div class="kart">
+        <h2>🧭 Servis Aşamaları</h2>
+        <ol class="asamalar">
+            <li th:each="asama, iter : ${durumlar}"
+                class="asama"
+                th:classappend="${iter.index < durumSirasi} ? ' tamamlandi' : (${iter.index == durumSirasi} ? ' aktif' : '')"
+                th:text="${asama}"></li>
+        </ol>
     </div>
 
     <div class="kart">

@@ -49,6 +49,12 @@ public class HomeController {
         return "araclar";
     }
 
+    @GetMapping("/servisler")
+    public String servisler(Model model) {
+        model.addAttribute("servisKayitlari", servisKaydiRepository.findAll());
+        return "servisler";
+    }
+
     @GetMapping("/takip/{id}")
     public String takip(@PathVariable Long id, Model model) {
 

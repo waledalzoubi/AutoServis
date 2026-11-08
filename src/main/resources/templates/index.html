@@ -39,6 +39,8 @@
             font-size: 25px;
         }
 
+        .brand-icon { width: 42px; height: 42px; vertical-align: middle; margin-right: 8px; }
+
         header p {
             margin: 7px 0 0;
             color: #cbd5e1;
@@ -178,6 +180,10 @@
             }
         }
     </style>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#101820">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <script defer src="/pwa-register.js"></script>
 </head>
 
 <body>
@@ -185,7 +191,7 @@
 <header>
     <div class="header-inner">
         <div>
-            <h1>🚗 AutoServis</h1>
+            <h1><img class="brand-icon" src="/icons/autoservis-512.png" alt="">AutoServis</h1>
             <p>Araç Servis Yönetim Sistemi</p>
         </div>
     </div>
@@ -196,6 +202,10 @@
     <section class="welcome">
         <h2>Yönetim Paneline Hoş Geldiniz</h2>
         <p>Servis işletmenizin genel durumunu buradan takip edebilirsiniz.</p>
+        <form action="/cikis" method="post">
+            <button type="submit" style="padding:10px 14px;border:0;border-radius:6px;background:#172337;color:white;cursor:pointer;">🔒 Güvenli Çıkış</button>
+        </form>
+        <button type="button" data-install-app hidden style="margin-top:12px;padding:10px 14px;border:0;border-radius:6px;background:#b79a67;color:#101820;font-weight:bold;cursor:pointer;">AutoServis'i Uygulama Olarak Yükle</button>
     </section>
 
     <section class="stats">

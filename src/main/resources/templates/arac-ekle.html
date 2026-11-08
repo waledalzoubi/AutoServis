@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Yeni Araç Ekle</title>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#101820">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <script defer src="/pwa-register.js"></script>
 </head>
 <body>
 
@@ -28,6 +32,10 @@
 
     <label>Telefon Numarası:</label>
     <input type="tel" name="telefon" placeholder="05XXXXXXXXX" required>
+    <br><br>
+
+    <label>Şasi Numarası:</label>
+    <input type="text" name="sasiNumarasi" minlength="17" maxlength="17" pattern="[A-HJ-NPR-Z0-9]{17}" placeholder="17 karakterli şasi numarası" required>
     <br><br>
 
     <label>Servis Durumu:</label>
