@@ -12,7 +12,7 @@ public class AdminAuthInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
         HttpSession session = request.getSession(false);
-        if (session != null && Boolean.TRUE.equals(session.getAttribute("adminGirisYapti"))) {
+        if (session != null && session.getAttribute("isletmeId") instanceof Long) {
             return true;
         }
         response.sendRedirect("/giris");

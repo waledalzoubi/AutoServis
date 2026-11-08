@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>İşletme Hesabı Oluştur - AutoServis</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 20px; font-family: Arial, sans-serif; background: #f1f4f9; color: #172337; }
+        main { width: 100%; max-width: 460px; padding: 30px; border-radius: 16px; background: white; box-shadow: 0 5px 25px #00000012; }
+        h1 { margin: 0; text-align: center; font-size: 27px; }
+        .brand-icon { display: block; width: 76px; height: 76px; margin: 0 auto 14px; }
+        p { color: #64748b; line-height: 1.5; }
+        label { display: block; margin: 18px 0 7px; font-weight: bold; }
+        input, button { width: 100%; padding: 13px; border-radius: 8px; font-size: 16px; }
+        input { border: 1px solid #cbd5e1; }
+        button { margin-top: 20px; border: 0; background: #172337; color: white; cursor: pointer; }
+        .bilgi { font-size: 14px; }
+        .hata { margin-top: 14px; padding: 12px; border-radius: 8px; background: #fee2e2; color: #991b1b; }
+        a { display: block; margin-top: 20px; text-align: center; color: #0d6efd; }
+    </style>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#101820">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <script defer src="/pwa-register.js"></script>
+</head>
+<body>
+<main>
+    <img class="brand-icon" src="/icons/autoservis-512.png" alt="AutoServis">
+    <h1>İşletme Hesabı Oluştur</h1>
+    <p>Her oto servis kendi hesabını açar. Araç ve servis kayıtları yalnızca bu işletmenin hesabında görünür.</p>
+    <form action="/kayit-yap" method="post">
+        <label for="isletmeAdi">İşletme adı</label>
+        <input id="isletmeAdi" name="isletmeAdi" maxlength="120" autocomplete="organization" required>
+        <label for="eposta">E-posta</label>
+        <input id="eposta" name="eposta" type="email" maxlength="190" autocomplete="username" required>
+        <label for="parola">Parola</label>
+        <input id="parola" name="parola" type="password" minlength="8" maxlength="128" autocomplete="new-password" required>
+        <label for="parolaTekrar">Parolayı tekrar girin</label>
+        <input id="parolaTekrar" name="parolaTekrar" type="password" minlength="8" maxlength="128" autocomplete="new-password" required>
+        <p class="bilgi">En az 8 karakter kullanın. Parolanız güvenli biçimde saklanır.</p>
+        <button type="submit">Hesap Oluştur</button>
+    </form>
+    <div class="hata" th:if="${hata != null}" th:text="${hata}" role="alert"></div>
+    <a href="/giris">Zaten hesabım var, giriş yap</a>
+</main>
+</body>
+</html>

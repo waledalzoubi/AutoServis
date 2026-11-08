@@ -4,6 +4,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class HomeController {
@@ -18,11 +19,12 @@ public class HomeController {
     }
 
     @GetMapping("/")
-    public String home(Model model) {
+    public String home(Model model, HttpSession session) {
+        Long isletmeId = (Long) session.getAttribute("isletmeId");
 
-        long aracSayisi = aracRepository.count();
+        long aracSayisi = aracRepository.countByIsletme_Id(isletmeId);
 
-        var servisler = servisKaydiRepository.findAll();
+        var servisler = servisKaydiRepository.findAllByArac_Isletme_Id(isletmeId);
 
         long servisSayisi = servisler.size();
 
@@ -39,26 +41,30 @@ public class HomeController {
         model.addAttribute("servisSayisi", servisSayisi);
         model.addAttribute("tamamlananIs", tamamlananIs);
         model.addAttribute("toplamGelir", toplamGelir);
+        model.addAttribute("isletmeAdi", session.getAttribute("isletmeAdi"));
 
         return "index";
     }
 
     @GetMapping("/araclar")
-    public String araclar(Model model) {
-        model.addAttribute("araclar", aracRepository.findAll());
+    public String araclar(Model model, HttpSession session) {
+        Long isletmeId = (Long) session.getAttribute("isletmeId");
+        model.addAttribute("araclar", aracRepository.findAllByIsletme_IdOrderByIdDesc(isletmeId));
         return "araclar";
     }
 
     @GetMapping("/servisler")
-    public String servisler(Model model) {
-        model.addAttribute("servisKayitlari", servisKaydiRepository.findAll());
+    public String servisler(Model model, HttpSession session) {
+        Long isletmeId = (Long) session.getAttribute("isletmeId");
+        model.addAttribute("servisKayitlari", servisKaydiRepository.findAllByArac_Isletme_Id(isletmeId));
         return "servisler";
     }
 
     @GetMapping("/takip/{id}")
-    public String takip(@PathVariable Long id, Model model) {
+    public String takip(@PathVariable Long id, Model model, HttpSession session) {
 
-        Arac arac = aracRepository.findById(id).orElse(null);
+        Long isletmeId = (Long) session.getAttribute("isletmeId");
+        Arac arac = aracRepository.findByIdAndIsletme_Id(id, isletmeId).orElse(null);
 
         if (arac == null) {
             return "redirect:/";

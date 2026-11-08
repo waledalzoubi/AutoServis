@@ -200,7 +200,7 @@
 <main class="container">
 
     <section class="welcome">
-        <h2>Yönetim Paneline Hoş Geldiniz</h2>
+        <h2><span th:text="${isletmeAdi}">İşletmeniz</span> yönetim paneline hoş geldiniz</h2>
         <p>Servis işletmenizin genel durumunu buradan takip edebilirsiniz.</p>
         <form action="/cikis" method="post">
             <button type="submit" style="padding:10px 14px;border:0;border-radius:6px;background:#172337;color:white;cursor:pointer;">🔒 Güvenli Çıkış</button>
