@@ -21,6 +21,8 @@ public class Arac {
     private String model;
     private int yil;
     private String telefon;
+    @Column(unique = true, length = 17)
+    private String sasiNumarasi;
     private String durum;
 
     @Column(unique = true, length = 36)
@@ -78,6 +80,15 @@ public class Arac {
 
     public void setTelefon(String telefon) {
         this.telefon = telefon;
+    }
+
+    public String getSasiNumarasi() {
+        return sasiNumarasi;
+    }
+
+    public void setSasiNumarasi(String sasiNumarasi) {
+        this.sasiNumarasi = sasiNumarasi == null ? null
+                : sasiNumarasi.replaceAll("[\\s-]", "").toUpperCase();
     }
 
     public String getDurum() {

@@ -37,9 +37,10 @@
 
         .logo {
             text-align: center;
-            font-size: 42px;
             margin-bottom: 10px;
         }
+
+        .logo img { width: 78px; height: 78px; }
 
         h1 {
             margin: 0 0 10px;
@@ -80,7 +81,7 @@
             box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
         }
 
-        #plaka {
+        #sasiNumarasi {
             text-transform: uppercase;
             autocapitalize: characters;
         }
@@ -161,19 +162,23 @@
             }
         }
     </style>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#101820">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <script defer src="/pwa-register.js"></script>
 </head>
 
 <body>
 
 <div class="kart">
 
-    <div class="logo">🚗</div>
+    <div class="logo"><img src="/icons/autoservis-512.png" alt="AutoServis"></div>
 
     <h1>AutoServis</h1>
 
     <p class="aciklama">
-        Aracınızın servis durumunu, yapılan işlemleri
-        ve ücret bilgilerini görüntüleyin.
+        Aracınızın servis bilgilerini görmek için şasi numaranızı
+        ve servise kayıtlı telefon numaranızı girin.
     </p>
 
     <form id="sorgulamaFormu"
@@ -182,13 +187,15 @@
           method="post"
           accept-charset="UTF-8">
 
-        <label for="plaka">Araç Plakası</label>
+        <label for="sasiNumarasi">Araç Şasi Numarası</label>
 
         <input
                 type="text"
-                id="plaka"
-                name="plaka"
-                placeholder="Örn. 34ABC123"
+                id="sasiNumarasi"
+                name="sasiNumarasi"
+                placeholder="17 karakterli şasi numarası"
+                minlength="17"
+                maxlength="17"
                 autocomplete="off"
                 autocapitalize="characters"
                 spellcheck="false"
@@ -196,23 +203,21 @@
                 required>
 
         <div class="bilgi">
-            Plakayı küçük veya büyük harfle yazabilirsiniz.
-            Sistem sorgulamadan önce büyük harfe dönüştürür.
+            Şasi numarası araç ruhsatında yer alır.
         </div>
 
-        <label for="telefonSon4">
-            Telefon Numaranızın Son 4 Hanesi
+        <label for="telefon">
+            Servise Kayıtlı Telefon Numaranız
         </label>
 
         <input
                 type="tel"
-                id="telefonSon4"
-                name="telefonSon4"
-                placeholder="Örn. 1234"
+                id="telefon"
+                name="telefon"
+                placeholder="05XXXXXXXXX"
                 inputmode="numeric"
-                pattern="[0-9]{4}"
-                maxlength="4"
-                minlength="4"
+                maxlength="13"
+                minlength="10"
                 autocomplete="off"
                 enterkeyhint="go"
                 required>
@@ -222,6 +227,8 @@
         </button>
 
     </form>
+
+    <button type="button" data-install-app hidden style="width:100%;min-height:44px;margin-top:12px;border:1px solid #b79a67;border-radius:8px;background:#fff;color:#172337;font-weight:bold;cursor:pointer;">AutoServis'i Uygulama Olarak Yükle</button>
 
     <div class="hata"
          th:if="${hata != null}"
@@ -243,44 +250,45 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
 
-        const plakaInput = document.getElementById("plaka");
-        const telefonInput = document.getElementById("telefonSon4");
+        const sasiInput = document.getElementById("sasiNumarasi");
+        const telefonInput = document.getElementById("telefon");
         const form = document.getElementById("sorgulamaFormu");
         const buton = document.getElementById("sorgulaButonu");
 
-        function plakayiDuzenle() {
-            plakaInput.value = plakaInput.value
-                .toLocaleUpperCase("tr-TR")
-                .replace(/\s+/g, "")
-                .replace(/[^A-Z0-9ÇĞİÖŞÜ]/g, "");
+        function sasiDuzenle() {
+            sasiInput.value = sasiInput.value
+                .toUpperCase()
+                .replace(/[\s-]+/g, "")
+                .replace(/[^A-HJ-NPR-Z0-9]/g, "")
+                .slice(0, 17);
         }
 
-        plakaInput.addEventListener("input", plakayiDuzenle);
-        plakaInput.addEventListener("change", plakayiDuzenle);
-        plakaInput.addEventListener("blur", plakayiDuzenle);
+        sasiInput.addEventListener("input", sasiDuzenle);
+        sasiInput.addEventListener("change", sasiDuzenle);
 
         telefonInput.addEventListener("input", function () {
             telefonInput.value = telefonInput.value
                 .replace(/\D/g, "")
-                .slice(0, 4);
+                .slice(0, 13);
         });
 
         form.addEventListener("submit", function (event) {
-            plakayiDuzenle();
+            sasiDuzenle();
 
             telefonInput.value = telefonInput.value
                 .replace(/\D/g, "")
-                .slice(0, 4);
+                .slice(0, 13);
 
-            if (plakaInput.value.trim() === "") {
+            if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(sasiInput.value)) {
                 event.preventDefault();
-                plakaInput.focus();
+                alert("Lütfen 17 karakterli geçerli bir şasi numarası girin.");
+                sasiInput.focus();
                 return;
             }
 
-            if (!/^\d{4}$/.test(telefonInput.value)) {
+            if (telefonInput.value.replace(/\D/g, "").length < 10) {
                 event.preventDefault();
-                alert("Lütfen telefon numaranızın son 4 hanesini girin.");
+                alert("Lütfen servise kayıtlı telefon numarasını girin.");
                 telefonInput.focus();
                 return;
             }

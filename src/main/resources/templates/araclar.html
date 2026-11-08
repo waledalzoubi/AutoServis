@@ -151,6 +151,10 @@
             color: #343a40;
         }
     </style>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#101820">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <script defer src="/pwa-register.js"></script>
 </head>
 
 <body>
@@ -187,6 +191,7 @@
                 <th>Model</th>
                 <th>Yıl</th>
                 <th>Telefon</th>
+                <th>Şasi Numarası</th>
                 <th>Servis Durumu</th>
                 <th>Detay</th>
                 <th>WhatsApp</th>
@@ -208,6 +213,8 @@
 
                 <td th:text="${arac.telefon}"></td>
 
+                <td th:text="${arac.sasiNumarasi}"></td>
+
                 <td class="durum" th:text="${arac.durum}"></td>
 
                 <td>
@@ -222,19 +229,15 @@
 
                     <a href="#"
                        class="whatsapp whatsapp-link"
-                       th:if="${arac.telefon != null
-                               and arac.takipAnahtari != null
-                               and !arac.takipAnahtari.isEmpty()}"
+                       th:if="${arac.telefon != null and arac.sasiNumarasi != null}"
                        th:attr="data-telefon=${arac.telefon},
-                                data-anahtar=${arac.takipAnahtari}"
+                                data-sasi=${arac.sasiNumarasi}"
                        rel="noopener">
                         📱 WhatsApp
                     </a>
 
-                    <span th:if="${arac.telefon == null
-                                  or arac.takipAnahtari == null
-                                  or arac.takipAnahtari.isEmpty()}">
-                        Takip bağlantısı yok
+                    <span th:if="${arac.telefon == null or arac.sasiNumarasi == null}">
+                        Şasi/telefon eksik
                     </span>
 
                 </td>
@@ -318,7 +321,7 @@
                 event.preventDefault();
 
                 let telefon = buton.dataset.telefon || "";
-                const anahtar = buton.dataset.anahtar || "";
+                const sasi = buton.dataset.sasi || "";
 
                 // Telefon numarasındaki boşlukları ve işaretleri temizle
                 telefon = telefon.replace(/\D/g, "");
@@ -336,19 +339,19 @@
                     telefon = "90" + telefon;
                 }
 
-                if (!telefon || !anahtar) {
-                    alert("Telefon numarası veya araç takip bağlantısı bulunamadı.");
+                if (!telefon || !sasi) {
+                    alert("Telefon numarası veya şasi numarası bulunamadı.");
                     return;
                 }
 
                 // Her müşteriye yalnızca kendi aracının takip bağlantısını gönder
-                const takipLinki =
-                    "https://autoservis-2f51.onrender.com/musteri/takip/" + anahtar;
+                const takipLinki = "https://autoservis-2f51.onrender.com/musteri";
 
                 const mesaj =
                     "Merhaba, AutoServis'ten yazıyoruz.\n\n" +
                     "Aracınızın servis durumunu, yapılan işlemleri ve ücretleri " +
-                    "aşağıdaki bağlantıdan takip edebilirsiniz:\n\n" +
+                    "Şasi numaranız: " + sasi + "\n" +
+                    "Kayıtlı telefon numaranızla aşağıdaki bağlantıdan aracınızı görüntüleyebilirsiniz:\n\n" +
                     takipLinki +
                     "\n\nİyi günler dileriz.\nAutoServis";
 

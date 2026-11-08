@@ -1,0 +1,25 @@
+{
+  "id": "/",
+  "name": "AutoServis",
+  "short_name": "AutoServis",
+  "description": "Araç servis ve müşteri takip uygulaması",
+  "start_url": "/giris",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#101820",
+  "theme_color": "#101820",
+  "icons": [
+    {
+      "src": "/icons/autoservis-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/autoservis-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
