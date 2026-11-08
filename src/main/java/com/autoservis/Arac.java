@@ -28,6 +28,10 @@ public class Arac {
     @Column(unique = true, length = 36)
     private String takipAnahtari;
 
+    @jakarta.persistence.ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
+    @jakarta.persistence.JoinColumn(name = "isletme_id")
+    private IsletmeHesabi isletme;
+
     public Arac() {
     }
 
@@ -106,4 +110,8 @@ public class Arac {
     public void setTakipAnahtari(String takipAnahtari) {
         this.takipAnahtari = takipAnahtari;
     }
+
+    public IsletmeHesabi getIsletme() { return isletme; }
+
+    public void setIsletme(IsletmeHesabi isletme) { this.isletme = isletme; }
 }
