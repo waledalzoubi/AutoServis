@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -104,6 +105,10 @@ public class SifreSifirlamaController {
         mesaj.setText("AutoServis hesabınız için şifre sıfırlama kodunuz: " + kod
                 + "\n\nKod 10 dakika içinde sona erer. Bu isteği siz başlatmadıysanız bu e-postayı yok sayın.");
         try {
+            if (mailSender instanceof JavaMailSenderImpl sender) {
+                sender.setUsername(mailUsername == null ? "" : mailUsername.trim());
+                sender.setPassword(mailPassword == null ? "" : mailPassword.replaceAll("\\s+", ""));
+            }
             mailSender.send(mesaj);
             model.addAttribute("kodIletildi", true);
         } catch (MailException ex) {
