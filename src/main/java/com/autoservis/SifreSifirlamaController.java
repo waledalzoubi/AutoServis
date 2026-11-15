@@ -101,14 +101,14 @@ public class SifreSifirlamaController {
         sifirlama = kodRepository.save(sifirlama);
 
         SimpleMailMessage mesaj = new SimpleMailMessage();
-        mesaj.setFrom(mailFrom);
+        mesaj.setFrom(mailFrom == null ? "" : mailFrom.replaceAll("\\s+", ""));
         mesaj.setTo(temizEposta);
         mesaj.setSubject("AutoServis şifre sıfırlama kodu");
         mesaj.setText("AutoServis hesabınız için şifre sıfırlama kodunuz: " + kod
                 + "\n\nKod 10 dakika içinde sona erer. Bu isteği siz başlatmadıysanız bu e-postayı yok sayın.");
         try {
             if (mailSender instanceof JavaMailSenderImpl sender) {
-                sender.setUsername(mailUsername == null ? "" : mailUsername.trim());
+                sender.setUsername(mailUsername == null ? "" : mailUsername.replaceAll("\\s+", ""));
                 sender.setPassword(mailPassword == null ? "" : mailPassword.replaceAll("\\s+", ""));
             }
             mailSender.send(mesaj);
