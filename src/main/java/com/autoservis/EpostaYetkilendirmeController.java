@@ -17,23 +17,26 @@ public class EpostaYetkilendirmeController {
 
     private final IsletmeHesabiRepository hesapRepository;
     private final IzinliEpostaRepository izinliEpostaRepository;
+    private final SistemYoneticiErisimi yoneticiErisimi;
 
     public EpostaYetkilendirmeController(IsletmeHesabiRepository hesapRepository,
-                                         IzinliEpostaRepository izinliEpostaRepository) {
+                                         IzinliEpostaRepository izinliEpostaRepository,
+                                         SistemYoneticiErisimi yoneticiErisimi) {
         this.hesapRepository = hesapRepository;
         this.izinliEpostaRepository = izinliEpostaRepository;
+        this.yoneticiErisimi = yoneticiErisimi;
     }
 
     @GetMapping("/eposta-yetkilendirme")
     public String liste(HttpSession session, Model model) {
-        if (!epostaYoneticisiMi(session)) return "redirect:/";
+        if (!yoneticiErisimi.oturumYoneticiMi(session)) return "redirect:/";
         model.addAttribute("izinliEpostalar", izinliEpostaRepository.findAllByOrderByEpostaAsc());
         return "eposta-yetkilendirme";
     }
 
     @PostMapping("/eposta-yetkilendirme/ekle")
     public String ekle(@RequestParam String eposta, HttpSession session, Model model) {
-        if (!epostaYoneticisiMi(session)) return "redirect:/";
+        if (!yoneticiErisimi.oturumYoneticiMi(session)) return "redirect:/";
         String temizEposta = eposta == null ? "" : eposta.trim().toLowerCase(Locale.ROOT);
         if (temizEposta.length() > 190 || !EPOSTA_BICIMI.matcher(temizEposta).matches()) {
             model.addAttribute("hata", "Geçerli bir e-posta adresi girin.");
@@ -55,15 +58,8 @@ public class EpostaYetkilendirmeController {
 
     @PostMapping("/eposta-yetkilendirme/sil/{id}")
     public String sil(@PathVariable Long id, HttpSession session) {
-        if (!epostaYoneticisiMi(session)) return "redirect:/";
+        if (!yoneticiErisimi.oturumYoneticiMi(session)) return "redirect:/";
         izinliEpostaRepository.deleteById(id);
         return "redirect:/eposta-yetkilendirme?silindi";
-    }
-
-    private boolean epostaYoneticisiMi(HttpSession session) {
-        Long oturumdakiHesapId = (Long) session.getAttribute("isletmeId");
-        if (oturumdakiHesapId == null) return false;
-        Long ilkHesapId = hesapRepository.findFirstByOrderByIdAsc().map(IsletmeHesabi::getId).orElse(null);
-        return oturumdakiHesapId.equals(ilkHesapId);
     }
 }

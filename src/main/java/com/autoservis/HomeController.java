@@ -11,14 +11,14 @@ public class HomeController {
 
     private final AracRepository aracRepository;
     private final ServisKaydiRepository servisKaydiRepository;
-    private final IsletmeHesabiRepository hesapRepository;
+    private final SistemYoneticiErisimi yoneticiErisimi;
 
     public HomeController(AracRepository aracRepository,
                           ServisKaydiRepository servisKaydiRepository,
-                          IsletmeHesabiRepository hesapRepository) {
+                          SistemYoneticiErisimi yoneticiErisimi) {
         this.aracRepository = aracRepository;
         this.servisKaydiRepository = servisKaydiRepository;
-        this.hesapRepository = hesapRepository;
+        this.yoneticiErisimi = yoneticiErisimi;
     }
 
     @GetMapping("/")
@@ -45,8 +45,7 @@ public class HomeController {
         model.addAttribute("tamamlananIs", tamamlananIs);
         model.addAttribute("toplamGelir", toplamGelir);
         model.addAttribute("isletmeAdi", session.getAttribute("isletmeAdi"));
-        Long ilkHesapId = hesapRepository.findFirstByOrderByIdAsc().map(IsletmeHesabi::getId).orElse(null);
-        model.addAttribute("epostaYoneticisi", ilkHesapId != null && ilkHesapId.equals(isletmeId));
+        model.addAttribute("epostaYoneticisi", yoneticiErisimi.oturumYoneticiMi(session));
 
         return "index";
     }
