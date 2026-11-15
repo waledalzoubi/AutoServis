@@ -15,6 +15,7 @@ import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Locale;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +25,7 @@ public class SifreSifirlamaController {
     private static final int KOD_GECERLILIK_DAKIKA = 10;
     private static final int EN_COK_HATALI_DENEME = 5;
     private static final Duration YENIDEN_GONDERME_ARALIGI = Duration.ofSeconds(60);
+    private static final Pattern EMAIL_IN_ERROR = Pattern.compile("[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}", Pattern.CASE_INSENSITIVE);
 
     private final IsletmeHesabiRepository hesapRepository;
     private final SifreSifirlamaKoduRepository kodRepository;
@@ -120,7 +122,9 @@ public class SifreSifirlamaController {
             model.addAttribute("bilgi", null);
             model.addAttribute("kodIletildi", false);
             model.addAttribute("hata", "E-posta gönderilemedi. Lütfen e-posta gönderim ayarlarını kontrol edin.");
-            LOGGER.warn("Password reset email delivery failed ({})", ex.getClass().getSimpleName());
+            String hataNedeni = ex.getMostSpecificCause() == null ? "" : ex.getMostSpecificCause().getMessage();
+            if (hataNedeni != null) hataNedeni = EMAIL_IN_ERROR.matcher(hataNedeni).replaceAll("[email]");
+            LOGGER.warn("Password reset email delivery failed ({}): {}", ex.getClass().getSimpleName(), hataNedeni);
         }
         return "sifre-unuttum";
     }
