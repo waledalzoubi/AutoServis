@@ -27,6 +27,9 @@ public class IsletmeHesabi {
     @Column(nullable = false, length = 200)
     private String parolaOzeti;
 
+    @Column
+    private Boolean onaylandi = true;
+
     public Long getId() { return id; }
     public String getIsletmeAdi() { return isletmeAdi; }
     public void setIsletmeAdi(String isletmeAdi) { this.isletmeAdi = isletmeAdi == null ? null : isletmeAdi.trim(); }
@@ -34,6 +37,8 @@ public class IsletmeHesabi {
     public void setEposta(String eposta) { this.eposta = eposta == null ? null : eposta.trim().toLowerCase(Locale.ROOT); }
     public String getParolaOzeti() { return parolaOzeti; }
     public void setParolaOzeti(String parolaOzeti) { this.parolaOzeti = parolaOzeti; }
+    public boolean isOnaylandi() { return onaylandi == null || onaylandi; }
+    public void setOnaylandi(boolean onaylandi) { this.onaylandi = onaylandi; }
 
     @PrePersist
     @PreUpdate

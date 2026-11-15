@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hesap Onayı - AutoServis</title>
+    <style>
+        *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:20px;font-family:Arial,sans-serif;background:#f1f4f9;color:#172337}
+        main{width:100%;max-width:500px;padding:30px;border-radius:16px;background:white;box-shadow:0 5px 25px #00000012}h1{text-align:center}
+        p{line-height:1.55;color:#475569}button,a{display:block;width:100%;margin-top:18px;padding:14px;border-radius:8px;text-align:center;font-size:16px}
+        button{border:0;background:#172337;color:white;cursor:pointer}a{color:#0d6efd}.ok,.err{padding:13px;border-radius:8px}.ok{background:#ecfdf5;color:#166534}.err{background:#fee2e2;color:#991b1b}
+    </style>
+</head>
+<body><main>
+    <h1>AutoServis Hesap Onayı</h1>
+    <div class="err" th:if="${hata != null}" th:text="${hata}" role="alert"></div>
+    <div th:if="${onaylandi != null}" class="ok" role="status">
+        Hesap onaylandı. <span th:text="${eposta}"></span> adresi artık giriş yapabilir. Bu e-posta için sonraki girişlerde yeniden onay istenmeyecek.
+        <a href="/giris">Giriş sayfasına git</a>
+    </div>
+    <div th:if="${hata == null and onaylandi == null}">
+        <p><strong th:text="${isletmeAdi}"></strong> işletmesi için <span th:text="${eposta}"></span> adresiyle hesap açma isteği var.</p>
+        <p>Bu hesabın AutoServis'e giriş yapmasına izin vermek için aşağıdaki düğmeye basın. Onay 24 saat boyunca geçerlidir.</p>
+        <form action="/hesap-onay" method="post"><input type="hidden" name="token" th:value="${token}"><button type="submit">Hesabı onayla</button></form>
+    </div>
+</main></body>
+</html>

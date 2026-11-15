@@ -21,6 +21,6 @@ public class WebConfig implements WebMvcConfigurer {
                         "/musteri", "/musteri-sorgula",
                         "/musteri/takip/**", "/manifest.webmanifest", "/service-worker.js",
                         "/pwa-register.js", "/offline.html", "/brand/**", "/icons/**",
-                        "/error", "/favicon.ico");
+                        "/hesap-onay", "/error", "/favicon.ico");
     }
 }

@@ -11,6 +11,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.regex.Pattern;
 import java.util.Locale;
+import java.security.MessageDigest;
+import java.security.SecureRandom;
+import java.util.Base64;
+import java.time.Instant;
+import java.time.Duration;
+import java.io.IOException;
 
 @Controller
 public class AdminAuthController {
@@ -21,17 +27,24 @@ public class AdminAuthController {
     private final ParolaKodlayici parolaKodlayici;
     private final IzinliEpostaRepository izinliEpostaRepository;
     private final SistemYoneticiErisimi yoneticiErisimi;
+    private final HesapOnayTalebiRepository onayRepository;
+    private final HesapOnayEpostaServisi onayEpostaServisi;
+    private final SecureRandom random = new SecureRandom();
 
     public AdminAuthController(IsletmeHesabiRepository hesapRepository,
                                AracRepository aracRepository,
                                ParolaKodlayici parolaKodlayici,
                                IzinliEpostaRepository izinliEpostaRepository,
-                               SistemYoneticiErisimi yoneticiErisimi) {
+                               SistemYoneticiErisimi yoneticiErisimi,
+                               HesapOnayTalebiRepository onayRepository,
+                               HesapOnayEpostaServisi onayEpostaServisi) {
         this.hesapRepository = hesapRepository;
         this.aracRepository = aracRepository;
         this.parolaKodlayici = parolaKodlayici;
         this.izinliEpostaRepository = izinliEpostaRepository;
         this.yoneticiErisimi = yoneticiErisimi;
+        this.onayRepository = onayRepository;
+        this.onayEpostaServisi = onayEpostaServisi;
     }
 
     @GetMapping("/giris")
@@ -78,16 +91,15 @@ public class AdminAuthController {
             model.addAttribute("hata", "İlk hesap yalnızca sistem yöneticisi için tanımlı e-posta adresiyle açılabilir.");
             return "admin-kayit";
         }
-        if (!ilkHesap && !izinliEpostaRepository.existsByEposta(temizEposta)) {
-            model.addAttribute("hata", "Bu e-posta hesap açmak için yetkilendirilmemiş. Sistem yöneticisinden izin isteyin.");
-            return "admin-kayit";
-        }
+        boolean onceOnaylanmis = izinliEpostaRepository.existsByEposta(temizEposta);
         IsletmeHesabi hesap = new IsletmeHesabi();
         hesap.setIsletmeAdi(temizIsletmeAdi);
         hesap.setEposta(temizEposta);
         hesap.setParolaOzeti(parolaKodlayici.kodla(parola));
+        boolean onayBekleyecek = !ilkHesap && !onceOnaylanmis;
+        hesap.setOnaylandi(!onayBekleyecek);
         hesap = hesapRepository.saveAndFlush(hesap);
-        if (!ilkHesap) {
+        if (!ilkHesap && onceOnaylanmis) {
             izinliEpostaRepository.findByEposta(temizEposta).ifPresent(izinliEpostaRepository::delete);
         }
 
@@ -96,6 +108,28 @@ public class AdminAuthController {
             var eskiAraclar = aracRepository.findAllByIsletmeIsNull();
             eskiAraclar.forEach(arac -> arac.setIsletme(kayitliHesap));
             aracRepository.saveAll(eskiAraclar);
+        }
+        if (onayBekleyecek) {
+            byte[] bytes = new byte[32];
+            random.nextBytes(bytes);
+            String token = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+            HesapOnayTalebi talep = new HesapOnayTalebi();
+            talep.setHesap(hesap);
+            talep.setTokenOzeti(tokenOzeti(token));
+            talep.setGecerlilikZamani(Instant.now().plus(Duration.ofHours(24)));
+            onayRepository.save(talep);
+            try {
+                onayEpostaServisi.onayIste(hesap, token);
+            } catch (IOException | InterruptedException | RuntimeException ex) {
+                if (ex instanceof InterruptedException) Thread.currentThread().interrupt();
+                onayRepository.delete(talep);
+                hesapRepository.delete(hesap);
+                model.addAttribute("hata", "Onay e-postası gönderilemedi. Lütfen daha sonra tekrar deneyin.");
+                return "admin-kayit";
+            }
+            model.addAttribute("epostaOnayiBekleniyor", true);
+            model.addAttribute("basarili", "Kayıt isteğiniz size özel incelemeye gönderildi. Onay e-postası geldikten sonra giriş yapabilirsiniz.");
+            return "admin-giris";
         }
         oturumAc(request, hesap);
         return "redirect:/";
@@ -110,6 +144,10 @@ public class AdminAuthController {
         IsletmeHesabi hesap = hesapRepository.findByEposta(temizEposta).orElse(null);
         if (hesap == null || !parolaKodlayici.dogrula(parola, hesap.getParolaOzeti())) {
             model.addAttribute("hata", "E-posta veya parola hatalı.");
+            return "admin-giris";
+        }
+        if (!hesap.isOnaylandi()) {
+            model.addAttribute("hata", "Hesabınız sistem yöneticisinin onayını bekliyor. Onay e-postası geldikten sonra giriş yapabilirsiniz.");
             return "admin-giris";
         }
         oturumAc(request, hesap);
@@ -128,5 +166,14 @@ public class AdminAuthController {
         HttpSession yeniOturum = request.getSession(true);
         yeniOturum.setAttribute("isletmeId", hesap.getId());
         yeniOturum.setAttribute("isletmeAdi", hesap.getIsletmeAdi());
+    }
+
+    private String tokenOzeti(String token) {
+        try {
+            byte[] digest = MessageDigest.getInstance("SHA-256").digest(token.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            return java.util.HexFormat.of().formatHex(digest);
+        } catch (java.security.NoSuchAlgorithmException ex) {
+            throw new IllegalStateException(ex);
+        }
     }
 }

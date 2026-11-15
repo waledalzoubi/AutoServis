@@ -39,6 +39,7 @@
     <a class="musteri" href="/sifre-unuttum">Şifremi unuttum</a>
     <button type="button" data-install-app hidden>AutoServis'i Uygulama Olarak Yükle</button>
     <div class="hata" th:if="${hata != null}" th:text="${hata}" role="alert"></div>
+    <div class="basarili" th:if="${basarili != null}" th:text="${basarili}" role="status"></div>
     <div class="basarili" th:if="${param.parolaDegisti != null}" role="status">Parolanız başarıyla değiştirildi. Yeni parolanızla giriş yapabilirsiniz.</div>
     <a class="musteri" href="/kayit">İşletmem için hesap oluştur</a>
     <a class="musteri" href="/musteri">Müşteri araç sorgulama</a>
