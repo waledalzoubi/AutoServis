@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 @Controller
 public class SifreSifirlamaController {
     private static final Logger LOGGER = LoggerFactory.getLogger(SifreSifirlamaController.class);
-    private static final int KOD_GECERLILIK_DAKIKA = 10;
+    private static final int KOD_GECERLILIK_DAKIKA = 2;
     private static final int EN_COK_HATALI_DENEME = 5;
     private static final Duration YENIDEN_GONDERME_ARALIGI = Duration.ofSeconds(60);
     private static final Pattern EMAIL_IN_ERROR = Pattern.compile("[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}", Pattern.CASE_INSENSITIVE);
@@ -75,7 +75,7 @@ public class SifreSifirlamaController {
             return "sifre-unuttum";
         }
 
-        model.addAttribute("bilgi", "Adres kayıtlıysa sıfırlama kodu gönderildi. Kod 10 dakika geçerlidir.");
+        model.addAttribute("bilgi", "Adres kayıtlıysa sıfırlama kodu gönderildi. Kod 2 dakika geçerlidir.");
 
         IsletmeHesabi hesap = hesapRepository.findByEposta(temizEposta).orElse(null);
         if (hesap == null) return "sifre-unuttum";
@@ -171,7 +171,7 @@ public class SifreSifirlamaController {
                 "to", List.of(alici),
                 "subject", "AutoServis şifre sıfırlama kodu",
                 "text", "AutoServis hesabınız için şifre sıfırlama kodunuz: " + kod
-                        + "\n\nKod 10 dakika içinde sona erer. Bu isteği siz başlatmadıysanız bu e-postayı yok sayın."
+                        + "\n\nKod 2 dakika içinde sona erer. Bu isteği siz başlatmadıysanız bu e-postayı yok sayın."
         );
         HttpRequest request = HttpRequest.newBuilder(URI.create("https://api.resend.com/emails"))
                 .timeout(Duration.ofSeconds(15))
