@@ -49,7 +49,16 @@ public class HomeController {
     @GetMapping("/araclar")
     public String araclar(Model model, HttpSession session) {
         Long isletmeId = (Long) session.getAttribute("isletmeId");
-        model.addAttribute("araclar", aracRepository.findAllByIsletme_IdOrderByIdDesc(isletmeId));
+        var araclar = aracRepository.findAllByIsletme_IdOrderByIdDesc(isletmeId);
+        boolean anahtarEklendi = false;
+        for (Arac arac : araclar) {
+            if (arac.getTakipAnahtari() == null || arac.getTakipAnahtari().isBlank()) {
+                arac.takipAnahtariOlustur();
+                anahtarEklendi = true;
+            }
+        }
+        if (anahtarEklendi) aracRepository.saveAll(araclar);
+        model.addAttribute("araclar", araclar);
         return "araclar";
     }
 

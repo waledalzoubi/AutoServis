@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
+import java.time.LocalDateTime;
 
 import java.util.UUID;
 
@@ -24,6 +25,8 @@ public class Arac {
     @Column(unique = true, length = 17)
     private String sasiNumarasi;
     private String durum;
+
+    private LocalDateTime tahminiHazirOlmaZamani;
 
     @Column(unique = true, length = 36)
     private String takipAnahtari;
@@ -101,6 +104,14 @@ public class Arac {
 
     public void setDurum(String durum) {
         this.durum = durum;
+    }
+
+    public LocalDateTime getTahminiHazirOlmaZamani() {
+        return tahminiHazirOlmaZamani;
+    }
+
+    public void setTahminiHazirOlmaZamani(LocalDateTime tahminiHazirOlmaZamani) {
+        this.tahminiHazirOlmaZamani = tahminiHazirOlmaZamani;
     }
 
     public String getTakipAnahtari() {

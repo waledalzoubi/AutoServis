@@ -23,6 +23,12 @@
     </p>
 
     <p>
+        <label>Tahmini Hazır Olma Zamanı (isteğe bağlı):</label><br>
+        <input type="datetime-local" name="tahminiHazirOlmaZamani"
+               th:value="${arac.tahminiHazirOlmaZamani == null ? '' : #temporals.format(arac.tahminiHazirOlmaZamani, 'yyyy-MM-dd''T''HH:mm')}">
+    </p>
+
+    <p>
         <label>Marka:</label><br>
         <input type="text" name="marka" th:value="${arac.marka}" required>
     </p>

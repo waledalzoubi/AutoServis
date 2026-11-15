@@ -229,15 +229,15 @@
 
                     <a href="#"
                        class="whatsapp whatsapp-link"
-                       th:if="${arac.telefon != null and arac.sasiNumarasi != null}"
-                       th:attr="data-telefon=${arac.telefon},
-                                data-sasi=${arac.sasiNumarasi}"
+                       th:if="${arac.telefon != null and !#strings.isEmpty(arac.telefon)}"
+                       th:data-telefon="${arac.telefon}"
+                       th:data-takip-yolu="@{/musteri/takip/{anahtar}(anahtar=${arac.takipAnahtari})}"
                        rel="noopener">
                         📱 WhatsApp
                     </a>
 
-                    <span th:if="${arac.telefon == null or arac.sasiNumarasi == null}">
-                        Şasi/telefon eksik
+                    <span th:if="${arac.telefon == null or #strings.isEmpty(arac.telefon)}">
+                        Telefon eksik
                     </span>
 
                 </td>
@@ -321,7 +321,6 @@
                 event.preventDefault();
 
                 let telefon = buton.dataset.telefon || "";
-                const sasi = buton.dataset.sasi || "";
 
                 // Telefon numarasındaki boşlukları ve işaretleri temizle
                 telefon = telefon.replace(/\D/g, "");
@@ -339,19 +338,18 @@
                     telefon = "90" + telefon;
                 }
 
-                if (!telefon || !sasi) {
-                    alert("Telefon numarası veya şasi numarası bulunamadı.");
+                if (!telefon || !buton.dataset.takipYolu) {
+                    alert("Telefon numarası veya araç takip bağlantısı bulunamadı.");
                     return;
                 }
 
                 // Her müşteriye yalnızca kendi aracının takip bağlantısını gönder
-                const takipLinki = "https://autoservis-2f51.onrender.com/musteri";
+                const takipLinki = new URL(buton.dataset.takipYolu, window.location.origin).toString();
 
                 const mesaj =
                     "Merhaba, AutoServis'ten yazıyoruz.\n\n" +
-                    "Aracınızın servis durumunu, yapılan işlemleri ve ücretleri " +
-                    "Şasi numaranız: " + sasi + "\n" +
-                    "Kayıtlı telefon numaranızla aşağıdaki bağlantıdan aracınızı görüntüleyebilirsiniz:\n\n" +
+                    "Aracınızın servis aşamasını, işlemlerini, ücretini ve tahmini hazır olma zamanını " +
+                    "aşağıdaki size özel bağlantıdan görüntüleyebilirsiniz:\n\n" +
                     takipLinki +
                     "\n\nİyi günler dileriz.\nAutoServis";
 

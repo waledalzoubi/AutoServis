@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import java.time.LocalDateTime;
 
 @Controller
 public class AracController {
@@ -55,6 +56,7 @@ public class AracController {
             @RequestParam String telefon,
             @RequestParam String sasiNumarasi,
             @RequestParam String durum,
+            @RequestParam(required = false) LocalDateTime tahminiHazirOlmaZamani,
             HttpSession session) {
         Arac mevcut = aracRepository.findByIdAndIsletme_Id(id, (Long) session.getAttribute("isletmeId"))
                 .orElse(null);
@@ -67,6 +69,7 @@ public class AracController {
         mevcut.setTelefon(telefon);
         mevcut.setSasiNumarasi(sasiNumarasi);
         mevcut.setDurum(durum);
+        mevcut.setTahminiHazirOlmaZamani(tahminiHazirOlmaZamani);
         aracRepository.save(mevcut);
         return "redirect:/araclar";
     }

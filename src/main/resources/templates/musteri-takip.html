@@ -116,6 +116,13 @@
             <strong>Servis durumu:</strong>
             <span th:text="${arac.durum}"></span>
         </div>
+
+        <div class="bilgi">
+            <strong>Tahmini hazır olma:</strong>
+            <span th:if="${arac.tahminiHazirOlmaZamani != null}"
+                  th:text="${#temporals.format(arac.tahminiHazirOlmaZamani, 'dd.MM.yyyy HH:mm')}"></span>
+            <span th:if="${arac.tahminiHazirOlmaZamani == null}">Henüz belirtilmedi</span>
+        </div>
     </div>
 
     <div class="kart">

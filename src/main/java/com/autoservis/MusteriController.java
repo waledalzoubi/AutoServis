@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.List;
 import java.util.Locale;
@@ -59,24 +60,17 @@ public class MusteriController {
     public String ozelAracTakip(
             @PathVariable("anahtar") String anahtar,
             Model model,
-            HttpSession session) {
+            HttpServletResponse response) {
 
-        Arac bulunanArac = aracRepository.findAll()
-                .stream()
-                .filter(arac -> arac.getTakipAnahtari() != null
-                        && arac.getTakipAnahtari().equals(anahtar))
-                .findFirst()
-                .orElse(null);
+        Arac bulunanArac = aracRepository.findByTakipAnahtari(anahtar).orElse(null);
 
         if (bulunanArac == null) {
             return "redirect:/musteri";
         }
 
-        Object izinliAracId = session.getAttribute("musteriAracId");
-        if (izinliAracId == null || !izinliAracId.equals(bulunanArac.getId())) {
-            return "redirect:/musteri";
-        }
-
+        response.setHeader("Cache-Control", "no-store, private");
+        // The unguessable per-vehicle key is the customer's private access link.
+        // Do not require a prior VIN/phone session: WhatsApp links open directly.
         return musteriAraciniGoster(bulunanArac, model);
     }
 
