@@ -1,20 +1,24 @@
 package com.autoservis;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.MailException;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,37 +30,30 @@ public class SifreSifirlamaController {
     private static final int EN_COK_HATALI_DENEME = 5;
     private static final Duration YENIDEN_GONDERME_ARALIGI = Duration.ofSeconds(60);
     private static final Pattern EMAIL_IN_ERROR = Pattern.compile("[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}", Pattern.CASE_INSENSITIVE);
+    private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(10)).build();
 
     private final IsletmeHesabiRepository hesapRepository;
     private final SifreSifirlamaKoduRepository kodRepository;
     private final ParolaKodlayici parolaKodlayici;
-    private final JavaMailSender mailSender;
     private final SecureRandom random = new SecureRandom();
     private final String mailFrom;
-    private final String mailHost;
-    private final String mailUsername;
-    private final String mailPassword;
-    private final boolean smtpAuth;
+    private final String resendApiKey;
+    private final ObjectMapper objectMapper;
 
     public SifreSifirlamaController(
             IsletmeHesabiRepository hesapRepository,
             SifreSifirlamaKoduRepository kodRepository,
             ParolaKodlayici parolaKodlayici,
-            JavaMailSender mailSender,
             @Value("${autoservis.mail.from:}") String mailFrom,
-            @Value("${spring.mail.host:}") String mailHost,
-            @Value("${spring.mail.username:}") String mailUsername,
-            @Value("${spring.mail.password:}") String mailPassword,
-            @Value("${spring.mail.properties.mail.smtp.auth:true}") boolean smtpAuth) {
+            @Value("${autoservis.mail.resend.api-key:}") String resendApiKey,
+            ObjectMapper objectMapper) {
         this.hesapRepository = hesapRepository;
         this.kodRepository = kodRepository;
         this.parolaKodlayici = parolaKodlayici;
-        this.mailSender = mailSender;
         this.mailFrom = mailFrom;
-        this.mailHost = mailHost;
-        this.mailUsername = mailUsername;
-        this.mailPassword = mailPassword;
-        this.smtpAuth = smtpAuth;
+        this.resendApiKey = resendApiKey;
+        this.objectMapper = objectMapper;
     }
 
     @GetMapping("/sifre-unuttum")
@@ -100,20 +97,11 @@ public class SifreSifirlamaController {
         sifirlama.setHataliDenemeSayisi(0);
         sifirlama = kodRepository.save(sifirlama);
 
-        SimpleMailMessage mesaj = new SimpleMailMessage();
-        mesaj.setFrom(mailFrom == null ? "" : mailFrom.replaceAll("\\s+", ""));
-        mesaj.setTo(temizEposta);
-        mesaj.setSubject("AutoServis şifre sıfırlama kodu");
-        mesaj.setText("AutoServis hesabınız için şifre sıfırlama kodunuz: " + kod
-                + "\n\nKod 10 dakika içinde sona erer. Bu isteği siz başlatmadıysanız bu e-postayı yok sayın.");
         try {
-            if (mailSender instanceof JavaMailSenderImpl sender) {
-                sender.setUsername(mailUsername == null ? "" : mailUsername.replaceAll("\\s+", ""));
-                sender.setPassword(mailPassword == null ? "" : mailPassword.replaceAll("\\s+", ""));
-            }
-            mailSender.send(mesaj);
+            sifirlamaEpostasiGonder(temizEposta, kod);
             model.addAttribute("kodIletildi", true);
-        } catch (MailException ex) {
+        } catch (IOException | InterruptedException | RuntimeException ex) {
+            if (ex instanceof InterruptedException) Thread.currentThread().interrupt();
             try {
                 kodRepository.delete(sifirlama);
             } catch (RuntimeException cleanupException) {
@@ -122,7 +110,7 @@ public class SifreSifirlamaController {
             model.addAttribute("bilgi", null);
             model.addAttribute("kodIletildi", false);
             model.addAttribute("hata", "E-posta gönderilemedi. Lütfen e-posta gönderim ayarlarını kontrol edin.");
-            String hataNedeni = ex.getMostSpecificCause() == null ? "" : ex.getMostSpecificCause().getMessage();
+            String hataNedeni = ex.getMessage();
             if (hataNedeni != null) hataNedeni = EMAIL_IN_ERROR.matcher(hataNedeni).replaceAll("[email]");
             LOGGER.warn("Password reset email delivery failed ({}): {}", ex.getClass().getSimpleName(), hataNedeni);
         }
@@ -174,9 +162,27 @@ public class SifreSifirlamaController {
     }
 
     private boolean mailAyarlandiMi() {
-        return mailHost != null && !mailHost.isBlank()
-                && mailFrom != null && !mailFrom.isBlank()
-                && (!smtpAuth || (mailUsername != null && !mailUsername.isBlank()
-                    && mailPassword != null && !mailPassword.isBlank()));
+        return resendApiKey != null && !resendApiKey.isBlank()
+                && mailFrom != null && !mailFrom.isBlank();
+    }
+
+    private void sifirlamaEpostasiGonder(String alici, String kod) throws IOException, InterruptedException {
+        Map<String, Object> body = Map.of(
+                "from", mailFrom,
+                "to", List.of(alici),
+                "subject", "AutoServis şifre sıfırlama kodu",
+                "text", "AutoServis hesabınız için şifre sıfırlama kodunuz: " + kod
+                        + "\n\nKod 10 dakika içinde sona erer. Bu isteği siz başlatmadıysanız bu e-postayı yok sayın."
+        );
+        HttpRequest request = HttpRequest.newBuilder(URI.create("https://api.resend.com/emails"))
+                .timeout(Duration.ofSeconds(15))
+                .header("Authorization", "Bearer " + resendApiKey.trim())
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(body)))
+                .build();
+        HttpResponse<Void> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.discarding());
+        if (response.statusCode() < 200 || response.statusCode() >= 300) {
+            throw new IOException("Resend API returned HTTP " + response.statusCode());
+        }
     }
 }
