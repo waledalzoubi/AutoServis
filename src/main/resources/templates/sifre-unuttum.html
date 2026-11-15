@@ -25,7 +25,7 @@
     <h1>Şifremi Unuttum</h1>
     <p>E-posta adresinize 6 haneli sıfırlama kodu gönderin. Kod 10 dakika geçerlidir.</p>
 
-    <form action="/sifre-kodu-gonder" method="post">
+    <form action="/sifre-kodu-gonder" method="post" th:if="${kodIletildi != true}">
         <label for="kodEposta">E-posta adresi</label>
         <input id="kodEposta" name="eposta" type="email" maxlength="190" autocomplete="email"
                th:value="${eposta}" required>
@@ -38,6 +38,8 @@
 
     <div th:if="${kodIletildi == true}">
         <hr>
+        <h2>Yeni parolanızı belirleyin</h2>
+        <p>E-postanıza gelen 6 haneli kodu ve yeni parolanızı girin.</p>
         <form action="/sifre-yenile" method="post">
             <label for="yenileEposta">E-posta adresi</label>
             <input id="yenileEposta" name="eposta" type="email" maxlength="190"

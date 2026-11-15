@@ -83,6 +83,8 @@ public class SifreSifirlamaController {
         Instant simdi = Instant.now();
         SifreSifirlamaKodu sifirlama = kodRepository.findByHesap_Id(hesap.getId()).orElse(null);
         if (sifirlama != null && sifirlama.getOlusturulmaZamani().isAfter(simdi.minus(YENIDEN_GONDERME_ARALIGI))) {
+            model.addAttribute("kodIletildi", true);
+            model.addAttribute("bilgi", "Yeni kod için lütfen 60 saniye bekleyin. Önceki kodunuzla devam edebilirsiniz.");
             return "sifre-unuttum";
         }
 
