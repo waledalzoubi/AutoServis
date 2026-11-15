@@ -19,13 +19,16 @@ public class AdminAuthController {
     private final IsletmeHesabiRepository hesapRepository;
     private final AracRepository aracRepository;
     private final ParolaKodlayici parolaKodlayici;
+    private final IzinliEpostaRepository izinliEpostaRepository;
 
     public AdminAuthController(IsletmeHesabiRepository hesapRepository,
                                AracRepository aracRepository,
-                               ParolaKodlayici parolaKodlayici) {
+                               ParolaKodlayici parolaKodlayici,
+                               IzinliEpostaRepository izinliEpostaRepository) {
         this.hesapRepository = hesapRepository;
         this.aracRepository = aracRepository;
         this.parolaKodlayici = parolaKodlayici;
+        this.izinliEpostaRepository = izinliEpostaRepository;
     }
 
     @GetMapping("/giris")
@@ -68,11 +71,18 @@ public class AdminAuthController {
         }
 
         boolean ilkHesap = hesapRepository.count() == 0;
+        if (!ilkHesap && !izinliEpostaRepository.existsByEposta(temizEposta)) {
+            model.addAttribute("hata", "Bu e-posta hesap açmak için yetkilendirilmemiş. Sistem yöneticisinden izin isteyin.");
+            return "admin-kayit";
+        }
         IsletmeHesabi hesap = new IsletmeHesabi();
         hesap.setIsletmeAdi(temizIsletmeAdi);
         hesap.setEposta(temizEposta);
         hesap.setParolaOzeti(parolaKodlayici.kodla(parola));
         hesap = hesapRepository.saveAndFlush(hesap);
+        if (!ilkHesap) {
+            izinliEpostaRepository.findByEposta(temizEposta).ifPresent(izinliEpostaRepository::delete);
+        }
 
         if (ilkHesap) {
             IsletmeHesabi kayitliHesap = hesap;

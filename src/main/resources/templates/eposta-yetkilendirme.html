@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>E-posta Yetkilendirme - AutoServis</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 24px; background: #f1f4f9; color: #172337; font-family: Arial, sans-serif; }
+        main { width: 100%; max-width: 700px; margin: 30px auto; padding: 28px; background: #fff; border-radius: 14px; box-shadow: 0 4px 18px #00000010; }
+        h1 { margin-top: 0; }
+        p { line-height: 1.55; color: #536176; }
+        form.ekle { display: flex; gap: 10px; margin: 22px 0; }
+        input { min-width: 0; flex: 1; padding: 12px; border: 1px solid #cbd5e1; border-radius: 7px; font-size: 16px; }
+        button { padding: 11px 14px; border: 0; border-radius: 7px; background: #172337; color: white; cursor: pointer; font-size: 15px; }
+        .satir { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 0; border-top: 1px solid #e2e8f0; overflow-wrap: anywhere; }
+        .sil { background: #b91c1c; }
+        .bilgi, .hata { margin: 12px 0; padding: 12px; border-radius: 8px; }
+        .bilgi { color: #166534; background: #dcfce7; }
+        .hata { color: #991b1b; background: #fee2e2; }
+        .geri { display: inline-block; margin-top: 18px; color: #1d4ed8; }
+        @media (max-width: 520px) { body { padding: 10px; } main { margin: 12px auto; padding: 20px; } form.ekle { flex-direction: column; } }
+    </style>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#101820">
+    <script defer src="/pwa-register.js"></script>
+</head>
+<body>
+<main>
+    <h1>Yeni hesap e-postalarını tanımla</h1>
+    <p>Buraya eklediğin e-posta adresleri işletme hesabı açabilir. E-posta hesap açılınca listeden otomatik çıkar. Tanımlanmamış adresle yeni hesap oluşturulamaz.</p>
+    <form class="ekle" action="/eposta-yetkilendirme/ekle" method="post">
+        <input type="email" name="eposta" maxlength="190" placeholder="ornek@firma.com" aria-label="Yetkilendirilecek e-posta" required>
+        <button type="submit">E-postayı tanımla</button>
+    </form>
+    <div class="hata" th:if="${hata != null}" th:text="${hata}" role="alert"></div>
+    <div class="bilgi" th:if="${param.eklendi != null}" role="status">E-posta hesap açmak için tanımlandı.</div>
+    <div class="bilgi" th:if="${param.silindi != null}" role="status">Tanımlı e-posta listeden kaldırıldı.</div>
+    <h2>Hesap açmasına izin verilen e-postalar</h2>
+    <p th:if="${#lists.isEmpty(izinliEpostalar)}">Henüz tanımlanmış e-posta yok.</p>
+    <div class="satir" th:each="izin : ${izinliEpostalar}">
+        <span th:text="${izin.eposta}"></span>
+        <form th:action="@{/eposta-yetkilendirme/sil/{id}(id=${izin.id})}" method="post">
+            <button class="sil" type="submit">Kaldır</button>
+        </form>
+    </div>
+    <a class="geri" href="/">← Yönetim paneline dön</a>
+</main>
+</body>
+</html>
