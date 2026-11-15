@@ -75,7 +75,6 @@ public class SifreSifirlamaController {
             return "sifre-unuttum";
         }
 
-        model.addAttribute("kodIletildi", true);
         model.addAttribute("bilgi", "Adres kayıtlıysa sıfırlama kodu gönderildi. Kod 10 dakika geçerlidir.");
 
         IsletmeHesabi hesap = hesapRepository.findByEposta(temizEposta).orElse(null);
@@ -106,9 +105,17 @@ public class SifreSifirlamaController {
                 + "\n\nKod 10 dakika içinde sona erer. Bu isteği siz başlatmadıysanız bu e-postayı yok sayın.");
         try {
             mailSender.send(mesaj);
+            model.addAttribute("kodIletildi", true);
         } catch (MailException ex) {
-            kodRepository.delete(sifirlama);
-            LOGGER.warn("Password reset email delivery failed.");
+            try {
+                kodRepository.delete(sifirlama);
+            } catch (RuntimeException cleanupException) {
+                LOGGER.warn("Failed to remove an unsent password reset code.");
+            }
+            model.addAttribute("bilgi", null);
+            model.addAttribute("kodIletildi", false);
+            model.addAttribute("hata", "E-posta gönderilemedi. Lütfen e-posta gönderim ayarlarını kontrol edin.");
+            LOGGER.warn("Password reset email delivery failed ({})", ex.getClass().getSimpleName());
         }
         return "sifre-unuttum";
     }
