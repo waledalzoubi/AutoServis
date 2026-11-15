@@ -155,10 +155,7 @@ public class SifreSifirlamaController {
         hesap.setParolaOzeti(parolaKodlayici.kodla(yeniParola));
         hesapRepository.save(hesap);
         kodRepository.delete(sifirlama);
-        model.addAttribute("kodIletildi", false);
-        model.addAttribute("eposta", "");
-        model.addAttribute("basarili", "Parolanız değiştirildi. Yeni parolanızla giriş yapabilirsiniz.");
-        return "sifre-unuttum";
+        return "redirect:/giris?parolaDegisti";
     }
 
     private boolean mailAyarlandiMi() {
