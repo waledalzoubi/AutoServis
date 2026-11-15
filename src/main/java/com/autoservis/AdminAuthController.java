@@ -113,9 +113,13 @@ public class AdminAuthController {
             byte[] bytes = new byte[32];
             random.nextBytes(bytes);
             String token = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+            byte[] durumBytes = new byte[32];
+            random.nextBytes(durumBytes);
+            String durumKodu = Base64.getUrlEncoder().withoutPadding().encodeToString(durumBytes);
             HesapOnayTalebi talep = new HesapOnayTalebi();
             talep.setHesap(hesap);
             talep.setTokenOzeti(tokenOzeti(token));
+            talep.setDurumTokenOzeti(tokenOzeti(durumKodu));
             talep.setGecerlilikZamani(Instant.now().plus(Duration.ofHours(24)));
             onayRepository.save(talep);
             try {
@@ -127,9 +131,9 @@ public class AdminAuthController {
                 model.addAttribute("hata", "Onay e-postası gönderilemedi. Lütfen daha sonra tekrar deneyin.");
                 return "admin-kayit";
             }
-            model.addAttribute("epostaOnayiBekleniyor", true);
-            model.addAttribute("basarili", "Kayıt isteğiniz size özel incelemeye gönderildi. Onay e-postası geldikten sonra giriş yapabilirsiniz.");
-            return "admin-giris";
+            model.addAttribute("durumKodu", durumKodu);
+            model.addAttribute("eposta", temizEposta);
+            return "onay-bekleniyor";
         }
         oturumAc(request, hesap);
         return "redirect:/";

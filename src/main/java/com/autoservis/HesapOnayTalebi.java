@@ -13,8 +13,13 @@ public class HesapOnayTalebi {
     @JoinColumn(name = "hesap_id", nullable = false, unique = true)
     private IsletmeHesabi hesap;
 
-    @Column(nullable = false, unique = true, length = 64)
+    @Column(unique = true, length = 64)
     private String tokenOzeti;
+
+    // Nullable for rows created before approval-status polling was introduced.
+    // New signup requests always populate this value in AdminAuthController.
+    @Column(unique = true, length = 64)
+    private String durumTokenOzeti;
 
     @Column(nullable = false)
     private Instant gecerlilikZamani;
@@ -24,6 +29,8 @@ public class HesapOnayTalebi {
     public void setHesap(IsletmeHesabi hesap) { this.hesap = hesap; }
     public String getTokenOzeti() { return tokenOzeti; }
     public void setTokenOzeti(String tokenOzeti) { this.tokenOzeti = tokenOzeti; }
+    public String getDurumTokenOzeti() { return durumTokenOzeti; }
+    public void setDurumTokenOzeti(String durumTokenOzeti) { this.durumTokenOzeti = durumTokenOzeti; }
     public Instant getGecerlilikZamani() { return gecerlilikZamani; }
     public void setGecerlilikZamani(Instant gecerlilikZamani) { this.gecerlilikZamani = gecerlilikZamani; }
 }

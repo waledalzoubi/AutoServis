@@ -29,6 +29,8 @@ public class SifreSifirlamaController {
     private static final int KOD_GECERLILIK_DAKIKA = 2;
     private static final int EN_COK_HATALI_DENEME = 5;
     private static final Duration YENIDEN_GONDERME_ARALIGI = Duration.ofSeconds(60);
+    private static final String SIFIRLAMA_TALEBI_BILGISI =
+            "Adres kayıtlıysa sıfırlama kodu gönderildi. Kod 2 dakika geçerlidir.";
     private static final Pattern EMAIL_IN_ERROR = Pattern.compile("[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}", Pattern.CASE_INSENSITIVE);
     private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10)).build();
@@ -75,16 +77,18 @@ public class SifreSifirlamaController {
             return "sifre-unuttum";
         }
 
-        model.addAttribute("bilgi", "Adres kayıtlıysa sıfırlama kodu gönderildi. Kod 2 dakika geçerlidir.");
+        model.addAttribute("bilgi", SIFIRLAMA_TALEBI_BILGISI);
 
         IsletmeHesabi hesap = hesapRepository.findByEposta(temizEposta).orElse(null);
-        if (hesap == null) return "sifre-unuttum";
+        if (hesap == null) {
+            model.addAttribute("kodIletildi", true);
+            return "sifre-unuttum";
+        }
 
         Instant simdi = Instant.now();
         SifreSifirlamaKodu sifirlama = kodRepository.findByHesap_Id(hesap.getId()).orElse(null);
         if (sifirlama != null && sifirlama.getOlusturulmaZamani().isAfter(simdi.minus(YENIDEN_GONDERME_ARALIGI))) {
             model.addAttribute("kodIletildi", true);
-            model.addAttribute("bilgi", "Yeni kod için lütfen 60 saniye bekleyin. Önceki kodunuzla devam edebilirsiniz.");
             return "sifre-unuttum";
         }
 
@@ -109,9 +113,10 @@ public class SifreSifirlamaController {
             } catch (RuntimeException cleanupException) {
                 LOGGER.warn("Failed to remove an unsent password reset code.");
             }
-            model.addAttribute("bilgi", null);
-            model.addAttribute("kodIletildi", false);
-            model.addAttribute("hata", "E-posta gönderilemedi. Lütfen e-posta gönderim ayarlarını kontrol edin.");
+            // Keep the public response identical so email existence and delivery outcomes
+            // are not disclosed through the page content.
+            model.addAttribute("bilgi", SIFIRLAMA_TALEBI_BILGISI);
+            model.addAttribute("kodIletildi", true);
             String hataNedeni = ex.getMessage();
             if (hataNedeni != null) hataNedeni = EMAIL_IN_ERROR.matcher(hataNedeni).replaceAll("[email]");
             LOGGER.warn("Password reset email delivery failed ({}): {}", ex.getClass().getSimpleName(), hataNedeni);
