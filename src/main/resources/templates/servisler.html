@@ -214,11 +214,10 @@
                 ✏️ Servisi Düzenle
             </a>
 
-            <a class="buton sil"
-               th:href="@{/servis-sil/{id}(id=${servis.id})}"
-               onclick="return confirm('Bu servis kaydını silmek istediğinize emin misiniz?')">
-                🗑️ Servisi Sil
-            </a>
+            <form th:action="@{/servis-sil/{id}(id=${servis.id})}" method="post"
+                  onsubmit="return confirm('Bu servis kaydını silmek istediğinize emin misiniz?')">
+                <button class="buton sil" type="submit">🗑️ Servisi Sil</button>
+            </form>
 
         </div>
 

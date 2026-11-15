@@ -118,10 +118,16 @@
         </div>
 
         <div class="bilgi">
-            <strong>Tahmini hazır olma:</strong>
-            <span th:if="${arac.tahminiHazirOlmaZamani != null}"
-                  th:text="${#temporals.format(arac.tahminiHazirOlmaZamani, 'dd.MM.yyyy HH:mm')}"></span>
-            <span th:if="${arac.tahminiHazirOlmaZamani == null}">Henüz belirtilmedi</span>
+            <strong>Servis başlangıcı:</strong>
+            <span th:text="${servisBaslangic != null ? servisBaslangic : 'Başlangıç zamanı kaydedilmemiş'}"></span>
+        </div>
+        <div class="bilgi">
+            <strong>Servis bitişi:</strong>
+            <span th:text="${servisBitis != null ? servisBitis : 'İşlem devam ediyor'}"></span>
+        </div>
+        <div class="bilgi">
+            <strong>Toplam servis süresi:</strong>
+            <span th:text="${servisSuresi}"></span>
         </div>
     </div>
 

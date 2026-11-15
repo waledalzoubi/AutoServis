@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import java.util.UUID;
 
@@ -26,7 +27,8 @@ public class Arac {
     private String sasiNumarasi;
     private String durum;
 
-    private LocalDateTime tahminiHazirOlmaZamani;
+    private LocalDateTime servisBaslangicZamani;
+    private LocalDateTime servisBitisZamani;
 
     @Column(unique = true, length = 36)
     private String takipAnahtari;
@@ -42,6 +44,12 @@ public class Arac {
     public void takipAnahtariOlustur() {
         if (takipAnahtari == null || takipAnahtari.isBlank()) {
             takipAnahtari = UUID.randomUUID().toString();
+        }
+        if (servisBaslangicZamani == null) {
+            servisBaslangicZamani = LocalDateTime.now(ZoneId.of("Europe/Istanbul"));
+        }
+        if (servisBittiMi(durum) && servisBitisZamani == null) {
+            servisBitisZamani = servisBaslangicZamani;
         }
     }
 
@@ -106,12 +114,32 @@ public class Arac {
         this.durum = durum;
     }
 
-    public LocalDateTime getTahminiHazirOlmaZamani() {
-        return tahminiHazirOlmaZamani;
+    public LocalDateTime getServisBaslangicZamani() {
+        return servisBaslangicZamani;
     }
 
-    public void setTahminiHazirOlmaZamani(LocalDateTime tahminiHazirOlmaZamani) {
-        this.tahminiHazirOlmaZamani = tahminiHazirOlmaZamani;
+    public LocalDateTime getServisBitisZamani() {
+        return servisBitisZamani;
+    }
+
+    public void servisDurumunuGuncelle(String yeniDurum) {
+        LocalDateTime simdi = LocalDateTime.now(ZoneId.of("Europe/Istanbul"));
+        boolean oncekiDurumBitti = servisBittiMi(this.durum);
+        boolean yeniDurumBitti = servisBittiMi(yeniDurum);
+
+        if (servisBaslangicZamani == null || (oncekiDurumBitti && !yeniDurumBitti)) {
+            servisBaslangicZamani = simdi;
+        }
+        if (yeniDurumBitti && (!oncekiDurumBitti || servisBitisZamani == null)) {
+            servisBitisZamani = simdi;
+        } else if (!yeniDurumBitti) {
+            servisBitisZamani = null;
+        }
+        this.durum = yeniDurum;
+    }
+
+    private boolean servisBittiMi(String durum) {
+        return "Araç hazır".equalsIgnoreCase(durum) || "Teslim edildi".equalsIgnoreCase(durum);
     }
 
     public String getTakipAnahtari() {

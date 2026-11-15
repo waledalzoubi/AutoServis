@@ -11,6 +11,10 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.List;
 import java.util.Locale;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 @Controller
 public class MusteriController {
@@ -95,8 +99,32 @@ public class MusteriController {
         model.addAttribute("toplamMaliyet", toplamMaliyet);
         model.addAttribute("durumlar", durumlar);
         model.addAttribute("durumSirasi", durumlar.indexOf(bulunanArac.getDurum()));
+        model.addAttribute("servisBaslangic", zamanMetni(bulunanArac.getServisBaslangicZamani()));
+        model.addAttribute("servisBitis", zamanMetni(bulunanArac.getServisBitisZamani()));
+        model.addAttribute("servisSuresi", servisSuresi(bulunanArac));
 
         return "musteri-takip";
+    }
+
+    private String zamanMetni(LocalDateTime zaman) {
+        return zaman == null ? null : zaman.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
+    }
+
+    private String servisSuresi(Arac arac) {
+        LocalDateTime baslangic = arac.getServisBaslangicZamani();
+        if (baslangic == null) return "Başlangıç zamanı kaydedilmemiş";
+
+        LocalDateTime bitis = arac.getServisBitisZamani();
+        LocalDateTime simdi = LocalDateTime.now(ZoneId.of("Europe/Istanbul"));
+        Duration sure = Duration.between(baslangic, bitis == null ? simdi : bitis);
+        long dakika = Math.max(0, sure.toMinutes());
+        long gun = dakika / 1440;
+        long saat = (dakika % 1440) / 60;
+        long kalanDakika = dakika % 60;
+        String gecenSure = (gun > 0 ? gun + " gün " : "")
+                + (saat > 0 ? saat + " saat " : "")
+                + kalanDakika + " dakika";
+        return bitis == null ? "Devam ediyor — " + gecenSure : gecenSure;
     }
 
     private String normalizeSasi(String sasi) {

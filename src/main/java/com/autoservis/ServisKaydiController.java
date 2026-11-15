@@ -79,7 +79,7 @@ public class ServisKaydiController {
         return "redirect:/takip/" + arac.getId();
     }
 
-    @GetMapping("/servis-sil/{id}")
+    @PostMapping("/servis-sil/{id}")
     public String servisSil(@PathVariable Long id, HttpSession session) {
         ServisKaydi kayit = servisKaydiRepository.findByIdAndArac_Isletme_Id(id,
                 (Long) session.getAttribute("isletmeId")).orElse(null);

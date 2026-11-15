@@ -119,6 +119,17 @@
             font-weight: bold;
         }
 
+        .sil-form { display: inline; }
+        .sil-dugmesi {
+            padding: 0;
+            border: 0;
+            background: transparent;
+            color: inherit;
+            font: inherit;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
         .durum {
             font-weight: bold;
         }
@@ -250,11 +261,10 @@
 
                     <br><br>
 
-                    <a class="sil"
-                       th:href="@{/arac-sil/{id}(id=${arac.id})}"
-                       onclick="return confirm('Bu aracı silmek istediğinize emin misiniz?')">
-                        🗑️ Sil
-                    </a>
+                    <form class="sil-form" th:action="@{/arac-sil/{id}(id=${arac.id})}" method="post"
+                          onsubmit="return confirm('Bu aracı silmek istediğinize emin misiniz?')">
+                        <button class="sil sil-dugmesi" type="submit">🗑️ Sil</button>
+                    </form>
                 </td>
 
             </tr>
