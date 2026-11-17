@@ -91,7 +91,8 @@ public class AdminAuthController {
         }
 
         boolean ilkHesap = hesapRepository.count() == 0;
-        if (ilkHesap && !yoneticiErisimi.yoneticiEpostasiMi(temizEposta)) {
+        boolean yoneticiHesabi = yoneticiErisimi.yoneticiEpostasiMi(temizEposta);
+        if (ilkHesap && !yoneticiHesabi) {
             model.addAttribute("hata", "İlk hesap yalnızca sistem yöneticisi için tanımlı e-posta adresiyle açılabilir.");
             return "admin-kayit";
         }
@@ -101,7 +102,7 @@ public class AdminAuthController {
         hesap.setEposta(temizEposta);
         hesap.setTelefon(temizTelefon);
         hesap.setParolaOzeti(parolaKodlayici.kodla(parola));
-        boolean onayBekleyecek = !ilkHesap && !onceOnaylanmis;
+        boolean onayBekleyecek = !yoneticiHesabi && !ilkHesap && !onceOnaylanmis;
         hesap.setOnaylandi(!onayBekleyecek);
         hesap = hesapRepository.saveAndFlush(hesap);
         if (!ilkHesap && onceOnaylanmis) {
