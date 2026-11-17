@@ -243,6 +243,7 @@
                        class="whatsapp whatsapp-link"
                        th:if="${arac.telefon != null and !#strings.isEmpty(arac.telefon)}"
                        th:data-telefon="${arac.telefon}"
+                       th:data-isletme-adi="${arac.isletme.isletmeAdi}"
                        th:data-takip-yolu="@{/musteri/takip/{anahtar}(anahtar=${arac.takipAnahtari})}"
                        rel="noopener">
                         📱 WhatsApp
@@ -356,14 +357,15 @@
 
                 // Her müşteriye yalnızca kendi aracının takip bağlantısını gönder
                 const takipLinki = new URL(buton.dataset.takipYolu, window.location.origin).toString();
+                const isletmeAdi = (buton.dataset.isletmeAdi || "Servisimiz").trim();
 
                 const mesaj =
-                    "Merhaba, AutoServis'ten yazıyoruz.\n\n" +
+                    "Merhaba, " + isletmeAdi + " ekibinden yazıyoruz.\n\n" +
                     "Aracınızın servis aşamasını, yapılan işlemleri, ücretini ve serviste geçen süreyi " +
                     "aşağıdaki size özel bağlantıdan görüntüleyebilirsiniz. Servis başlangıç ve bitiş " +
                     "tarihleri uygulamada otomatik olarak kaydedilir:\n\n" +
                     takipLinki +
-                    "\n\nİyi günler dileriz.\nAutoServis";
+                    "\n\nİyi günler dileriz.\n" + isletmeAdi;
 
                 const whatsappLink =
                     "https://wa.me/" + telefon +
