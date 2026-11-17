@@ -42,6 +42,12 @@
         .error { background: #fee2e2; color: #991b1b; }
         .warning { margin: 8px 0 16px; font-size: 13px; color: #64748b; }
         .empty { padding: 18px; background: white; border-radius: 12px; }
+        .share-card { background: white; border-radius: 14px; padding: 22px; margin-bottom: 20px; box-shadow: 0 4px 18px #0000000b; }
+        .share-card h2 { margin: 0 0 8px; }
+        .share-form { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
+        .share-form input { flex: 1 1 240px; min-width: 0; padding: 11px 12px; border: 1px solid #cbd5e1; border-radius: 7px; font-size: 16px; }
+        .share-form button { background: #15803d; }
+        .share-hint { margin-top: 10px; font-size: 13px; }
         @media (max-width: 600px) {
             body { padding: 12px; }
             header { padding: 18px; }
@@ -67,6 +73,36 @@
         </div>
         <form action="/cikis" method="post"><button class="exit" type="submit">Güvenli çıkış</button></form>
     </header>
+
+    <section class="share-card" aria-labelledby="share-title">
+        <h2 id="share-title">AutoServis bağlantısını WhatsApp’tan gönder</h2>
+        <p>Telefon numarasını ülke koduyla yazın. WhatsApp’ta hazır mesaj açılır; göndermeden önce kontrol edebilirsiniz.</p>
+        <form class="share-form" id="whatsapp-share-form">
+            <label for="whatsapp-phone" class="sr-only">Telefon numarası</label>
+            <input id="whatsapp-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="Örn. +90 5xx xxx xx xx" required>
+            <button type="submit">WhatsApp’ta aç</button>
+        </form>
+        <p class="share-hint">Numarayı uluslararası biçimde girin (ör. +90); mesajı WhatsApp içinde siz gönderirsiniz.</p>
+    </section>
+
+    <style>.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }</style>
+    <script>
+        document.getElementById('whatsapp-share-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const input = document.getElementById('whatsapp-phone');
+            const raw = input.value.trim();
+            const phone = raw.replace(/\D/g, '');
+            if (!raw.startsWith('+') || phone.length < 8 || phone.length > 15 || phone.startsWith('0')) {
+                input.setCustomValidity('Lütfen +90 ile başlayan uluslararası numarayı girin.');
+                input.reportValidity();
+                input.addEventListener('input', () => input.setCustomValidity(''), { once: true });
+                return;
+            }
+            const message = 'Merhaba! AutoServis uygulamasını buradan kullanabilirsiniz: https://autoservis-2f51.onrender.com/\n\nAndroid: Bağlantıyı Chrome’da açıp ⋮ menüsünden “Uygulamayı yükle”yi seçin.\niPhone: Bağlantıyı Safari’de açıp Paylaş > Ana Ekrana Ekle’yi seçin.';
+            const url = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(message);
+            window.open(url, '_blank', 'noopener,noreferrer');
+        });
+    </script>
 
     <h2>İşletmeler</h2>
     <div class="notice" th:if="${param.onaylandi != null}" role="status">İşletme hesabı e-posta koduyla onaylandı.</div>
