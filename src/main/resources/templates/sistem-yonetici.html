@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script defer src="/refresh-button.js?v=2"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <title>Sistem Yönetimi - AutoServis</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 22px; background: #f1f4f9; color: #172337; font-family: Arial, sans-serif; }
+        main { max-width: 900px; margin: 28px auto; }
+        header, section { background: white; border-radius: 14px; padding: 22px; box-shadow: 0 4px 18px #0000000b; }
+        header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+        h1 { margin: 0 0 8px; font-size: 25px; }
+        p { color: #64748b; line-height: 1.5; margin: 0; }
+        .account { margin-top: 8px; font-size: 14px; overflow-wrap: anywhere; }
+        .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 18px; }
+        .stat { padding: 16px; border-radius: 10px; background: #f8fafc; }
+        .stat span { display: block; color: #64748b; font-size: 14px; }
+        .stat strong { display: block; margin-top: 8px; font-size: 24px; }
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 14px 12px; border-bottom: 1px solid #e2e8f0; }
+        th { color: #64748b; font-size: 13px; }
+        td:first-child { overflow-wrap: anywhere; }
+        .badge { display: inline-block; padding: 6px 10px; border-radius: 999px; font-size: 13px; font-weight: bold; white-space: nowrap; }
+        .approved { color: #166534; background: #dcfce7; }
+        .pending { color: #92400e; background: #fef3c7; }
+        .exit { padding: 10px 14px; border: 0; border-radius: 7px; background: #172337; color: white; cursor: pointer; }
+        .empty { padding: 18px 0; }
+        @media (max-width: 520px) { body { padding: 12px; } header, section { padding: 17px; } th, td { padding: 11px 8px; font-size: 14px; } }
+    </style>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#101820">
+    <script defer src="/pwa-register.js"></script>
+</head>
+<body>
+<main>
+    <header>
+        <div>
+            <h1>Sistem yönetimi</h1>
+            <p>İşletme hesaplarının e-posta adresi ve onay durumunu görüntüleyin.</p>
+            <p class="account">Yönetici: <strong th:text="${yoneticiEpostasi}"></strong></p>
+        </div>
+        <form action="/cikis" method="post"><button class="exit" type="submit">Güvenli çıkış</button></form>
+    </header>
+    <div class="stats">
+        <div class="stat"><span>İşletme hesabı</span><strong th:text="${#lists.size(hesaplar)}">0</strong></div>
+        <div class="stat"><span>Onay bekleyen</span><strong th:text="${bekleyenSayisi}">0</strong></div>
+    </div>
+    <section>
+        <h2>İşletme hesapları</h2>
+        <p th:if="${#lists.isEmpty(hesaplar)}" class="empty">Henüz işletme hesabı bulunmuyor.</p>
+        <div class="table-wrap" th:unless="${#lists.isEmpty(hesaplar)}">
+            <table>
+                <thead><tr><th>E-posta</th><th>Onay durumu</th></tr></thead>
+                <tbody>
+                <tr th:each="hesap : ${hesaplar}">
+                    <td th:text="${hesap.eposta}"></td>
+                    <td><span class="badge" th:classappend="${hesap.onaylandi} ? ' approved' : ' pending'" th:text="${hesap.onaylandi} ? 'Onaylı' : 'Onay bekliyor'"></span></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>

@@ -23,6 +23,7 @@ public class HomeController {
 
     @GetMapping("/")
     public String home(Model model, HttpSession session) {
+        if (yoneticiErisimi.oturumYoneticiMi(session)) return "redirect:/yonetici";
         Long isletmeId = (Long) session.getAttribute("isletmeId");
 
         long aracSayisi = aracRepository.countByIsletme_Id(isletmeId);

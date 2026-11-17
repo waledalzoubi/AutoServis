@@ -7,4 +7,5 @@ import java.util.Optional;
 public interface IsletmeHesabiRepository extends JpaRepository<IsletmeHesabi, Long> {
     Optional<IsletmeHesabi> findByEposta(String eposta);
     boolean existsByEposta(String eposta);
+    java.util.List<IsletmeHesabi> findAllByOrderByIdDesc();
 }
