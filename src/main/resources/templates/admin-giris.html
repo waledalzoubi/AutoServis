@@ -40,6 +40,7 @@
     <a class="musteri" href="/sifre-unuttum">Şifremi unuttum</a>
     <button type="button" data-install-app hidden>AutoServis'i Uygulama Olarak Yükle</button>
     <div class="hata" th:if="${hata != null}" th:text="${hata}" role="alert"></div>
+    <div class="hata" th:if="${param.hesapDonduruldu != null}" role="alert">Hesabınız donduruldu. Sistem yöneticisiyle iletişime geçin.</div>
     <div class="basarili" th:if="${param.hesapSilindi != null}" role="status">Yönetici hesabı kaldırıldı. Panele dönmek için aynı e-postayla yeniden kayıt olup onay bağlantısını tamamlamanız gerekir.</div>
     <div class="basarili" th:if="${basarili != null}" th:text="${basarili}" role="status"></div>
     <div class="basarili" th:if="${param.parolaDegisti != null}" role="status">Parolanız başarıyla değiştirildi. Yeni parolanızla giriş yapabilirsiniz.</div>

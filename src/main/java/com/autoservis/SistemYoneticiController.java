@@ -52,10 +52,35 @@ public class SistemYoneticiController {
         List<IsletmeHesabi> hesaplar = hesapRepository.findAllByOrderByIdDesc();
         model.addAttribute("hesaplar", hesaplar);
         model.addAttribute("bekleyenSayisi", hesaplar.stream().filter(hesap -> !hesap.isOnaylandi()).count());
+        model.addAttribute("dondurulmusSayisi", hesaplar.stream().filter(hesap -> !hesap.isAktif()).count());
         model.addAttribute("yoneticiEpostasi", session.getAttribute("isletmeId") == null
                 ? "" : hesapRepository.findById((Long) session.getAttribute("isletmeId"))
                 .map(IsletmeHesabi::getEposta).orElse(""));
         return "sistem-yonetici";
+    }
+
+    @PostMapping("/yonetici/hesap-dondur/{id}")
+    public String hesapDondur(@PathVariable Long id, @RequestParam String token, HttpSession session) {
+        return hesapAktifliginiDegistir(id, token, false, session);
+    }
+
+    @PostMapping("/yonetici/hesap-etkinlestir/{id}")
+    public String hesapEtkinlestir(@PathVariable Long id, @RequestParam String token, HttpSession session) {
+        return hesapAktifliginiDegistir(id, token, true, session);
+    }
+
+    private String hesapAktifliginiDegistir(Long id, String token, boolean aktif, HttpSession session) {
+        if (!yoneticiErisimi.oturumYoneticiMi(session)) return "redirect:/";
+        String beklenenToken = (String) session.getAttribute("hesapSilmeToken");
+        if (beklenenToken == null || token == null || !MessageDigest.isEqual(
+                beklenenToken.getBytes(StandardCharsets.UTF_8), token.getBytes(StandardCharsets.UTF_8))) {
+            return "redirect:/yonetici?guvenlik";
+        }
+        IsletmeHesabi hesap = hesapRepository.findById(id).orElse(null);
+        if (hesap == null) return "redirect:/yonetici?bulunamadi";
+        hesap.setAktif(aktif);
+        hesapRepository.save(hesap);
+        return aktif ? "redirect:/yonetici?etkinlestirildi" : "redirect:/yonetici?donduruldu";
     }
 
     @PostMapping("/yonetici/hesap-sil/{id}")

@@ -33,6 +33,9 @@ public class IsletmeHesabi {
     @Column
     private Boolean onaylandi = true;
 
+    @Column
+    private Boolean aktif = true;
+
     public Long getId() { return id; }
     public String getIsletmeAdi() { return isletmeAdi; }
     public void setIsletmeAdi(String isletmeAdi) { this.isletmeAdi = isletmeAdi == null ? null : isletmeAdi.trim(); }
@@ -44,6 +47,8 @@ public class IsletmeHesabi {
     public void setParolaOzeti(String parolaOzeti) { this.parolaOzeti = parolaOzeti; }
     public boolean isOnaylandi() { return onaylandi == null || onaylandi; }
     public void setOnaylandi(boolean onaylandi) { this.onaylandi = onaylandi; }
+    public boolean isAktif() { return aktif == null || aktif; }
+    public void setAktif(boolean aktif) { this.aktif = aktif; }
 
     @PrePersist
     @PreUpdate

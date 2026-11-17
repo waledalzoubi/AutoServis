@@ -27,8 +27,12 @@
         .badge { display: inline-block; padding: 6px 10px; border-radius: 999px; font-size: 13px; font-weight: bold; white-space: nowrap; }
         .approved { color: #166534; background: #dcfce7; }
         .pending { color: #92400e; background: #fef3c7; }
+        .active { color: #166534; background: #dcfce7; }
+        .frozen { color: #991b1b; background: #fee2e2; }
         .exit { padding: 10px 14px; border: 0; border-radius: 7px; background: #172337; color: white; cursor: pointer; }
         .delete { padding: 8px 11px; border: 0; border-radius: 7px; background: #b91c1c; color: white; cursor: pointer; }
+        .freeze { padding: 8px 11px; border: 0; border-radius: 7px; background: #475569; color: white; cursor: pointer; }
+        .actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
         .notice { padding: 12px; margin: 12px 0; border-radius: 8px; background: #dcfce7; color: #166534; }
         .warning { font-size: 13px; color: #991b1b; }
         .empty { padding: 18px 0; }
@@ -51,24 +55,32 @@
     <div class="stats">
         <div class="stat"><span>İşletme hesabı</span><strong th:text="${#lists.size(hesaplar)}">0</strong></div>
         <div class="stat"><span>Onay bekleyen</span><strong th:text="${bekleyenSayisi}">0</strong></div>
+        <div class="stat"><span>Dondurulmuş hesap</span><strong th:text="${dondurulmusSayisi}">0</strong></div>
     </div>
     <section>
         <h2>İşletme hesapları</h2>
         <div class="notice" th:if="${param.silindi != null}" role="status">İşletme hesabı ve ona bağlı veriler silindi.</div>
+        <div class="notice" th:if="${param.donduruldu != null}" role="status">Hesap donduruldu; işletme bilgileri ve kayıtları korundu.</div>
+        <div class="notice" th:if="${param.etkinlestirildi != null}" role="status">Hesap yeniden etkinleştirildi.</div>
         <div class="notice" th:if="${param.bulunamadi != null}" role="alert">Bu hesap artık bulunmuyor.</div>
         <div class="notice" th:if="${param.guvenlik != null}" role="alert">İşlem doğrulanamadı. Sayfayı yenileyip tekrar deneyin.</div>
-        <p class="warning">Hesap kaldırıldığında işletme hesabı, araçlar, servis kayıtları ve takip bağlantıları kalıcı olarak silinir. Kendi yönetici hesabınızı kaldırırsanız oturumunuz kapanır; panele dönmek için aynı e-postayla yeniden kayıt olup onayı tamamlamanız gerekir.</p>
+        <p class="warning">Dondurulan hesap giriş yapamaz; araçlar, servis kayıtları ve takip bağlantıları korunur. Kalıcı silme bu verilerin tamamını geri alınamayacak şekilde kaldırır. Yönetici hesabınızı dondurursanız yönetici ekranına erişiminiz sürer; kalıcı silerseniz oturum kapanır ve panele dönmek için aynı e-postayla yeniden kayıt olup onayı tamamlamanız gerekir.</p>
         <p th:if="${#lists.isEmpty(hesaplar)}" class="empty">Henüz işletme hesabı bulunmuyor.</p>
         <div class="table-wrap" th:unless="${#lists.isEmpty(hesaplar)}">
             <table>
-                <thead><tr><th>İşletme adı</th><th>E-posta</th><th>Telefon</th><th>Onay durumu</th><th>İşlem</th></tr></thead>
+                <thead><tr><th>İşletme adı</th><th>E-posta</th><th>Telefon</th><th>Onay durumu</th><th>Hesap</th><th>İşlemler</th></tr></thead>
                 <tbody>
                 <tr th:each="hesap : ${hesaplar}">
                     <td th:text="${hesap.isletmeAdi}"></td>
                     <td th:text="${hesap.eposta}"></td>
                     <td th:text="${hesap.telefon != null ? hesap.telefon : 'Belirtilmemiş'}"></td>
                     <td><span class="badge" th:classappend="${hesap.onaylandi} ? ' approved' : ' pending'" th:text="${hesap.onaylandi} ? 'Onaylı' : 'Onay bekliyor'"></span></td>
-                    <td><form th:action="@{/yonetici/hesap-sil/{id}(id=${hesap.id})}" method="post" onsubmit="return confirm('Bu hesabı ve bağlı tüm araç, servis kaydı ve takip bağlantılarını kalıcı olarak silmek istiyor musunuz?')"><input type="hidden" name="token" th:value="${hesapSilmeToken}"><button class="delete" type="submit">Hesabı kaldır</button></form></td>
+                    <td><span class="badge" th:classappend="${hesap.aktif} ? ' active' : ' frozen'" th:text="${hesap.aktif} ? 'Aktif' : 'Donduruldu'"></span></td>
+                    <td><div class="actions">
+                        <form th:if="${hesap.aktif}" th:action="@{/yonetici/hesap-dondur/{id}(id=${hesap.id})}" method="post" onsubmit="return confirm('Hesap dondurulsun mu? Giriş kapanır; tüm araç, servis ve takip kayıtları korunur.')"><input type="hidden" name="token" th:value="${hesapSilmeToken}"><button class="freeze" type="submit">Dondur</button></form>
+                        <form th:unless="${hesap.aktif}" th:action="@{/yonetici/hesap-etkinlestir/{id}(id=${hesap.id})}" method="post"><input type="hidden" name="token" th:value="${hesapSilmeToken}"><button class="freeze" type="submit">Etkinleştir</button></form>
+                        <form th:action="@{/yonetici/hesap-sil/{id}(id=${hesap.id})}" method="post" onsubmit="return confirm('Bu hesabı ve bağlı tüm araç, servis kaydı ve takip bağlantılarını kalıcı olarak silmek istiyor musunuz? Bu işlem geri alınamaz.')"><input type="hidden" name="token" th:value="${hesapSilmeToken}"><button class="delete" type="submit">Kalıcı sil</button></form>
+                    </div></td>
                 </tr>
                 </tbody>
             </table>

@@ -159,6 +159,10 @@ public class AdminAuthController {
             model.addAttribute("hata", "Hesabınız sistem yöneticisinin onayını bekliyor. Onay e-postası geldikten sonra giriş yapabilirsiniz.");
             return "admin-giris";
         }
+        if (!hesap.isAktif() && !yoneticiErisimi.yoneticiEpostasiMi(temizEposta)) {
+            model.addAttribute("hata", "Hesabınız sistem yöneticisi tarafından dondurulmuş. Hesabınızla ilgili bilgi için yöneticinize başvurun.");
+            return "admin-giris";
+        }
         oturumAc(request, hesap);
         return "redirect:/";
     }
