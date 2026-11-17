@@ -20,7 +20,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "/sifre-unuttum", "/sifre-kodu-gonder", "/sifre-yenile",
                         "/musteri", "/musteri-sorgula",
                         "/musteri/takip/**", "/manifest.webmanifest", "/service-worker.js",
-                        "/pwa-register.js", "/offline.html", "/brand/**", "/icons/**",
+                        "/pwa-register.js", "/refresh-button.js", "/offline.html", "/brand/**", "/icons/**",
                         "/hesap-onay", "/hesap-onay-durumu", "/error", "/favicon.ico");
     }
 }
