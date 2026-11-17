@@ -61,16 +61,20 @@ public class AdminAuthController {
     @Transactional
     public String kayitYap(@RequestParam String isletmeAdi,
                            @RequestParam String eposta,
+                           @RequestParam String telefon,
                            @RequestParam String parola,
                            @RequestParam String parolaTekrar,
                            HttpServletRequest request,
                            Model model) {
         String temizIsletmeAdi = isletmeAdi == null ? "" : isletmeAdi.trim();
         String temizEposta = eposta == null ? "" : eposta.trim().toLowerCase(Locale.ROOT);
+        String temizTelefon = telefon == null ? "" : telefon.trim();
+        String telefonRakamSayisi = temizTelefon.replaceAll("\\D", "");
 
         if (temizIsletmeAdi.isBlank() || temizIsletmeAdi.length() > 120
-                || !EPOSTA_BICIMI.matcher(temizEposta).matches()) {
-            model.addAttribute("hata", "İşletme adını ve geçerli bir e-posta adresini girin.");
+                || !EPOSTA_BICIMI.matcher(temizEposta).matches()
+                || telefonRakamSayisi.length() < 10 || telefonRakamSayisi.length() > 15) {
+            model.addAttribute("hata", "İşletme adı, geçerli e-posta ve telefon numarasını girin.");
             return "admin-kayit";
         }
         if (parola == null || parola.length() < 8 || parola.length() > 128) {
@@ -95,6 +99,7 @@ public class AdminAuthController {
         IsletmeHesabi hesap = new IsletmeHesabi();
         hesap.setIsletmeAdi(temizIsletmeAdi);
         hesap.setEposta(temizEposta);
+        hesap.setTelefon(temizTelefon);
         hesap.setParolaOzeti(parolaKodlayici.kodla(parola));
         boolean onayBekleyecek = !ilkHesap && !onceOnaylanmis;
         hesap.setOnaylandi(!onayBekleyecek);

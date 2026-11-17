@@ -24,6 +24,9 @@ public class IsletmeHesabi {
     @Column(nullable = false, unique = true, length = 190)
     private String eposta;
 
+    @Column(length = 30)
+    private String telefon;
+
     @Column(nullable = false, length = 200)
     private String parolaOzeti;
 
@@ -35,6 +38,8 @@ public class IsletmeHesabi {
     public void setIsletmeAdi(String isletmeAdi) { this.isletmeAdi = isletmeAdi == null ? null : isletmeAdi.trim(); }
     public String getEposta() { return eposta; }
     public void setEposta(String eposta) { this.eposta = eposta == null ? null : eposta.trim().toLowerCase(Locale.ROOT); }
+    public String getTelefon() { return telefon; }
+    public void setTelefon(String telefon) { this.telefon = telefon == null || telefon.isBlank() ? null : telefon.trim(); }
     public String getParolaOzeti() { return parolaOzeti; }
     public void setParolaOzeti(String parolaOzeti) { this.parolaOzeti = parolaOzeti; }
     public boolean isOnaylandi() { return onaylandi == null || onaylandi; }
