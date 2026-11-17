@@ -71,4 +71,22 @@ public class HesapOnayEpostaServisi {
         if (response.statusCode() < 200 || response.statusCode() >= 300)
             throw new IOException("Resend API returned HTTP " + response.statusCode());
     }
+
+    public void yoneticiHesapKurtarmaKoduGonder(String kod) throws IOException, InterruptedException {
+        if (apiKey == null || apiKey.isBlank() || from == null || from.isBlank()
+                || adminEmail == null || adminEmail.isBlank()) {
+            throw new IOException("Email settings are not configured");
+        }
+        String bodyText = "AutoServis ana yönetici hesabını geri yüklemek için doğrulama kodu: " + kod
+                + "\n\nBu kod 10 dakika geçerlidir. Kurtarma işlemini siz başlatmadıysanız kullanmayın.";
+        Map<String, Object> body = Map.of("from", from, "to", List.of(adminEmail),
+                "subject", "AutoServis yönetici hesabı kurtarma kodu", "text", bodyText);
+        HttpRequest request = HttpRequest.newBuilder(URI.create("https://api.resend.com/emails"))
+                .timeout(Duration.ofSeconds(15)).header("Authorization", "Bearer " + apiKey.trim())
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(body))).build();
+        HttpResponse<Void> response = HTTP.send(request, HttpResponse.BodyHandlers.discarding());
+        if (response.statusCode() < 200 || response.statusCode() >= 300)
+            throw new IOException("Resend API returned HTTP " + response.statusCode());
+    }
 }

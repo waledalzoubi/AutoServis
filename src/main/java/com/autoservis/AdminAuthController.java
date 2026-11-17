@@ -21,6 +21,9 @@ import java.io.IOException;
 @Controller
 public class AdminAuthController {
     private static final Pattern EPOSTA_BICIMI = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
+    private static final Duration YONETICI_KURTARMA_KOD_SURESI = Duration.ofMinutes(10);
+    private static final Duration YONETICI_KURTARMA_YENIDEN_GONDERME = Duration.ofSeconds(60);
+    private static final int YONETICI_KURTARMA_EN_COK_DENEME = 5;
 
     private final IsletmeHesabiRepository hesapRepository;
     private final AracRepository aracRepository;
@@ -30,6 +33,12 @@ public class AdminAuthController {
     private final HesapOnayTalebiRepository onayRepository;
     private final HesapOnayEpostaServisi onayEpostaServisi;
     private final SecureRandom random = new SecureRandom();
+    private static final String KURTARMA_HASH = "yoneticiKurtarmaKodOzeti";
+    private static final String KURTARMA_SON_KULLANMA = "yoneticiKurtarmaSonKullanma";
+    private static final String KURTARMA_GONDERILME = "yoneticiKurtarmaGonderilme";
+    private static final String KURTARMA_DENEME = "yoneticiKurtarmaDeneme";
+    private static final String KURTARMA_EPOSTA = "yoneticiKurtarmaEpostasi";
+    private static final String KURTARMA_TOKEN = "yoneticiKurtarmaFormToken";
 
     public AdminAuthController(IsletmeHesabiRepository hesapRepository,
                                AracRepository aracRepository,
@@ -55,6 +64,142 @@ public class AdminAuthController {
     @GetMapping("/kayit")
     public String kayit() {
         return "admin-kayit";
+    }
+
+    @GetMapping("/yonetici-hesap-kurtarma")
+    public String yoneticiHesapKurtarma(HttpSession session, Model model) {
+        kurtarmaFormunuHazirla(session, model);
+        return "yonetici-hesap-kurtarma";
+    }
+
+    @PostMapping("/yonetici-hesap-kurtarma-kodu")
+    public String yoneticiKurtarmaKoduGonder(@RequestParam String eposta, @RequestParam String token,
+                                              HttpSession session, Model model) {
+        if (!kurtarmaFormTokeniGecerli(token, session)) {
+            model.addAttribute("hata", "Form süresi doldu. Sayfayı yenileyip yeniden deneyin.");
+            kurtarmaFormunuHazirla(session, model);
+            return "yonetici-hesap-kurtarma";
+        }
+        String temizEposta = eposta == null ? "" : eposta.trim().toLowerCase(Locale.ROOT);
+        if (!yoneticiErisimi.yoneticiEpostasiMi(temizEposta)) {
+            model.addAttribute("hata", "Bu e-posta ana yönetici e-postası olarak tanımlı değil.");
+            kurtarmaFormunuHazirla(session, model);
+            return "yonetici-hesap-kurtarma";
+        }
+        if (hesapRepository.existsByEposta(temizEposta)) {
+            model.addAttribute("hata", "Ana yönetici hesabı zaten mevcut. Giriş ekranından parola sıfırlamayı kullanın.");
+            kurtarmaFormunuHazirla(session, model);
+            return "yonetici-hesap-kurtarma";
+        }
+
+        Instant now = Instant.now();
+        Instant lastSent = (Instant) session.getAttribute(KURTARMA_GONDERILME);
+        if (lastSent != null && lastSent.isAfter(now.minus(YONETICI_KURTARMA_YENIDEN_GONDERME))) {
+            session.setAttribute(KURTARMA_EPOSTA, temizEposta);
+            model.addAttribute("hata", "Yeni kod istemeden önce 60 saniye bekleyin.");
+            kurtarmaFormunuHazirla(session, model);
+            return "yonetici-hesap-kurtarma";
+        }
+
+        String code = String.format(Locale.ROOT, "%06d", random.nextInt(1_000_000));
+        session.setAttribute(KURTARMA_HASH, parolaKodlayici.kodla(code));
+        session.setAttribute(KURTARMA_SON_KULLANMA, now.plus(YONETICI_KURTARMA_KOD_SURESI));
+        session.setAttribute(KURTARMA_GONDERILME, now);
+        session.setAttribute(KURTARMA_DENEME, 0);
+        session.setAttribute(KURTARMA_EPOSTA, temizEposta);
+        try {
+            onayEpostaServisi.yoneticiHesapKurtarmaKoduGonder(code);
+        } catch (IOException | InterruptedException | RuntimeException ex) {
+            if (ex instanceof InterruptedException) Thread.currentThread().interrupt();
+            kurtarmaKodunuTemizle(session);
+            model.addAttribute("hata", "Kurtarma kodu gönderilemedi. E-posta ayarlarını kontrol edin.");
+            kurtarmaFormunuHazirla(session, model);
+            return "yonetici-hesap-kurtarma";
+        }
+        return "redirect:/yonetici-hesap-kurtarma?kodGonderildi";
+    }
+
+    @PostMapping("/yonetici-hesap-geri-yukle")
+    @Transactional
+    public String yoneticiHesabiniGeriYukle(@RequestParam String kod, @RequestParam String parola,
+                                            @RequestParam String parolaTekrar, @RequestParam String token,
+                                            HttpServletRequest request, HttpSession session, Model model) {
+        if (!kurtarmaFormTokeniGecerli(token, session)) {
+            model.addAttribute("hata", "Form süresi doldu. Sayfayı yenileyip yeniden deneyin.");
+            kurtarmaFormunuHazirla(session, model);
+            return "yonetici-hesap-kurtarma";
+        }
+        if (parola == null || parola.length() < 8 || parola.length() > 128) {
+            model.addAttribute("hata", "Yeni parola en az 8, en fazla 128 karakter olmalı.");
+            kurtarmaFormunuHazirla(session, model);
+            return "yonetici-hesap-kurtarma";
+        }
+        if (!parola.equals(parolaTekrar)) {
+            model.addAttribute("hata", "Parolalar aynı değil. Tekrar kontrol edin.");
+            kurtarmaFormunuHazirla(session, model);
+            return "yonetici-hesap-kurtarma";
+        }
+
+        String adminEpostasi = (String) session.getAttribute(KURTARMA_EPOSTA);
+        String kodOzeti = (String) session.getAttribute(KURTARMA_HASH);
+        Instant expiresAt = (Instant) session.getAttribute(KURTARMA_SON_KULLANMA);
+        Integer attempts = (Integer) session.getAttribute(KURTARMA_DENEME);
+        if (adminEpostasi == null || kodOzeti == null || expiresAt == null
+                || expiresAt.isBefore(Instant.now()) || (attempts != null && attempts >= YONETICI_KURTARMA_EN_COK_DENEME)) {
+            kurtarmaKodunuTemizle(session);
+            model.addAttribute("hata", "Kodun süresi doldu veya deneme sınırı aşıldı. Yeni kod isteyin.");
+            kurtarmaFormunuHazirla(session, model);
+            return "yonetici-hesap-kurtarma";
+        }
+        if (!yoneticiErisimi.yoneticiEpostasiMi(adminEpostasi) || hesapRepository.existsByEposta(adminEpostasi)) {
+            kurtarmaKodunuTemizle(session);
+            model.addAttribute("hata", "Yönetici hesabı zaten mevcut. Giriş ekranından devam edin.");
+            kurtarmaFormunuHazirla(session, model);
+            return "yonetici-hesap-kurtarma";
+        }
+        if (kod == null || !kod.matches("[0-9]{6}") || !parolaKodlayici.dogrula(kod, kodOzeti)) {
+            session.setAttribute(KURTARMA_DENEME, (attempts == null ? 0 : attempts) + 1);
+            model.addAttribute("hata", "Doğrulama kodu hatalı.");
+            kurtarmaFormunuHazirla(session, model);
+            return "yonetici-hesap-kurtarma";
+        }
+
+        IsletmeHesabi admin = new IsletmeHesabi();
+        admin.setIsletmeAdi("Sistem Yöneticisi");
+        admin.setEposta(adminEpostasi);
+        admin.setParolaOzeti(parolaKodlayici.kodla(parola));
+        admin.setOnaylandi(true);
+        admin.setAktif(true);
+        admin = hesapRepository.saveAndFlush(admin);
+        izinliEpostaRepository.findByEposta(adminEpostasi).ifPresent(izinliEpostaRepository::delete);
+        kurtarmaKodunuTemizle(session);
+        oturumAc(request, admin);
+        return "redirect:/";
+    }
+
+    private void kurtarmaFormunuHazirla(HttpSession session, Model model) {
+        String token = (String) session.getAttribute(KURTARMA_TOKEN);
+        if (token == null) {
+            token = java.util.UUID.randomUUID().toString();
+            session.setAttribute(KURTARMA_TOKEN, token);
+        }
+        model.addAttribute("kurtarmaToken", token);
+        model.addAttribute("kodIstenmis", session.getAttribute(KURTARMA_HASH) != null);
+        model.addAttribute("kurtarmaEpostasi", session.getAttribute(KURTARMA_EPOSTA));
+    }
+
+    private boolean kurtarmaFormTokeniGecerli(String token, HttpSession session) {
+        String expected = (String) session.getAttribute(KURTARMA_TOKEN);
+        return expected != null && token != null && MessageDigest.isEqual(
+                expected.getBytes(java.nio.charset.StandardCharsets.UTF_8), token.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    }
+
+    private void kurtarmaKodunuTemizle(HttpSession session) {
+        session.removeAttribute(KURTARMA_HASH);
+        session.removeAttribute(KURTARMA_SON_KULLANMA);
+        session.removeAttribute(KURTARMA_GONDERILME);
+        session.removeAttribute(KURTARMA_DENEME);
+        session.removeAttribute(KURTARMA_EPOSTA);
     }
 
     @PostMapping("/kayit-yap")

@@ -17,6 +17,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(adminAuthInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns("/giris", "/giris-yap", "/kayit", "/kayit-yap",
+                        "/yonetici-hesap-kurtarma", "/yonetici-hesap-kurtarma-kodu", "/yonetici-hesap-geri-yukle",
                         "/sifre-unuttum", "/sifre-kodu-gonder", "/sifre-yenile",
                         "/musteri", "/musteri-sorgula",
                         "/musteri/takip/**", "/manifest.webmanifest", "/service-worker.js",
