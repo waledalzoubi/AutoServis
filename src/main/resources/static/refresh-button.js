@@ -1,7 +1,43 @@
 (() => {
     const style = document.createElement('style');
-    style.textContent = `#autoservis-refresh{position:fixed;right:18px;bottom:18px;z-index:2147483000;border:0;border-radius:999px;padding:12px 17px;background:#172337;color:#fff;font:600 15px Arial,sans-serif;box-shadow:0 4px 16px #0003;cursor:pointer}#autoservis-refresh:hover{background:#263c5b}#autoservis-refresh:focus-visible{outline:3px solid #60a5fa;outline-offset:3px}@media(max-width:520px){#autoservis-refresh{right:12px;bottom:12px;padding:11px 14px}}`;
+    style.textContent = `#autoservis-navigation{position:fixed;right:18px;bottom:18px;z-index:2147483000;display:flex;gap:8px}#autoservis-navigation button{position:static;border:0;border-radius:999px;padding:12px 17px;background:#172337;color:#fff;font:600 15px Arial,sans-serif;box-shadow:0 4px 16px #0003;cursor:pointer}#autoservis-navigation button:hover{background:#263c5b}#autoservis-navigation button:focus-visible{outline:3px solid #60a5fa;outline-offset:3px}@media(max-width:520px){#autoservis-navigation{right:12px;bottom:12px;gap:6px}#autoservis-navigation button{padding:11px 14px}}`;
     document.head.appendChild(style);
+
+    const navigation = document.createElement('div');
+    navigation.id = 'autoservis-navigation';
+
+    const backButton = document.createElement('button');
+    backButton.id = 'autoservis-back';
+    backButton.type = 'button';
+    backButton.setAttribute('aria-label', 'Önceki sayfaya dön');
+    backButton.textContent = '← Geri';
+    backButton.addEventListener('click', () => {
+        let sameSiteReferrer = false;
+        try {
+            sameSiteReferrer = Boolean(document.referrer)
+                && new URL(document.referrer).origin === window.location.origin;
+        } catch (_) {
+            sameSiteReferrer = false;
+        }
+
+        if (sameSiteReferrer && window.history.length > 1) {
+            window.history.back();
+            return;
+        }
+
+        const path = window.location.pathname;
+        let fallback = '/giris';
+        if (path.startsWith('/musteri/takip/')) fallback = '/musteri';
+        else if (path.startsWith('/arac-duzenle/') || path.startsWith('/takip/')) fallback = '/araclar';
+        else if (path.startsWith('/servis-duzenle/')) fallback = '/servisler';
+        else if (path === '/arac-ekle' || path === '/arac-guncelle' || path === '/arac-kaydet') fallback = '/araclar';
+        else if (path === '/servis-ekle' || path === '/servis-guncelle' || path === '/servis-kaydet') fallback = '/servisler';
+        else if (path === '/araclar') fallback = '/';
+        else if (path === '/servisler') fallback = '/araclar';
+        else if (path === '/sifre-unuttum' || path === '/sifre-kodu-gonder' || path === '/sifre-yenile') fallback = '/giris';
+        else if (path === '/musteri') fallback = '/giris';
+        window.location.assign(fallback);
+    });
 
     const button = document.createElement('button');
     button.id = 'autoservis-refresh';
@@ -41,5 +77,6 @@
     if (sessionStorage.getItem('autoservis-last-post') !== window.location.pathname) {
         sessionStorage.removeItem('autoservis-last-post');
     }
-    document.body.appendChild(button);
+    navigation.append(backButton, button);
+    document.body.appendChild(navigation);
 })();
