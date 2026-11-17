@@ -67,7 +67,9 @@ public class SistemYoneticiController {
             session.setAttribute("hesapSilmeToken", hesapSilmeToken);
         }
         model.addAttribute("hesapSilmeToken", hesapSilmeToken);
-        List<IsletmeHesabi> hesaplar = hesapRepository.findAllByOrderByIdDesc();
+        List<IsletmeHesabi> hesaplar = hesapRepository.findAllByOrderByIdDesc().stream()
+                .filter(hesap -> !yoneticiErisimi.yoneticiEpostasiMi(hesap.getEposta()))
+                .toList();
         model.addAttribute("hesaplar", hesaplar);
         model.addAttribute("seciliHesapId", secili);
         model.addAttribute("bekleyenSayisi", hesaplar.stream().filter(hesap -> !hesap.isOnaylandi()).count());
@@ -94,6 +96,9 @@ public class SistemYoneticiController {
         if (!yoneticiIslemTokeniGecerli(token, session)) return "redirect:/yonetici?guvenlik";
         IsletmeHesabi hesap = hesapRepository.findById(id).orElse(null);
         if (hesap == null) return "redirect:/yonetici?bulunamadi";
+        if (yoneticiErisimi.yoneticiEpostasiMi(hesap.getEposta())) {
+            return "redirect:/yonetici?yoneticiKorunuyor";
+        }
         if (hesap.isOnaylandi()) return "redirect:/yonetici?zatenOnayli&secili=" + id;
 
         Instant simdi = Instant.now();
@@ -172,6 +177,9 @@ public class SistemYoneticiController {
         if (!yoneticiIslemTokeniGecerli(token, session)) return "redirect:/yonetici?guvenlik";
         IsletmeHesabi hesap = hesapRepository.findById(id).orElse(null);
         if (hesap == null) return "redirect:/yonetici?bulunamadi";
+        if (yoneticiErisimi.yoneticiEpostasiMi(hesap.getEposta())) {
+            return "redirect:/yonetici?yoneticiKorunuyor";
+        }
         hesap.setAktif(aktif);
         hesapRepository.save(hesap);
         return aktif ? "redirect:/yonetici?etkinlestirildi" : "redirect:/yonetici?donduruldu";
@@ -182,7 +190,11 @@ public class SistemYoneticiController {
     public String hesapSil(@PathVariable Long id, @RequestParam String token, HttpSession session) {
         if (!yoneticiErisimi.oturumYoneticiMi(session)) return "redirect:/";
         if (!yoneticiIslemTokeniGecerli(token, session)) return "redirect:/yonetici?guvenlik";
-        if (!hesapRepository.existsById(id)) return "redirect:/yonetici?bulunamadi";
+        IsletmeHesabi silinecekHesap = hesapRepository.findById(id).orElse(null);
+        if (silinecekHesap == null) return "redirect:/yonetici?bulunamadi";
+        if (yoneticiErisimi.yoneticiEpostasiMi(silinecekHesap.getEposta())) {
+            return "redirect:/yonetici?yoneticiKorunuyor";
+        }
 
         var servisKayitlari = servisKaydiRepository.findAllByArac_Isletme_Id(id);
         servisKaydiRepository.deleteAll(servisKayitlari);

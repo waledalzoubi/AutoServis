@@ -79,6 +79,7 @@
     <div class="notice error" th:if="${param.kodSuresiDoldu != null}" role="alert">Kodun süresi doldu veya deneme sınırı aşıldı. Yeni kod isteyin.</div>
     <div class="notice error" th:if="${param.kodBekle != null}" role="alert">Yeni kod istemeden önce 60 saniye bekleyin.</div>
     <div class="notice error" th:if="${param.guvenlik != null}" role="alert">İşlem doğrulanamadı. Sayfayı yenileyip tekrar deneyin.</div>
+    <div class="notice error" th:if="${param.yoneticiKorunuyor != null}" role="alert">Ana yönetici hesabı korunur; bu işlemler dükkân hesaplarına uygulanabilir.</div>
     <div class="notice error" th:if="${param.bulunamadi != null}" role="alert">Bu hesap artık bulunmuyor.</div>
     <p class="warning">Dondurma girişi kapatır, verileri korur. Kalıcı silme araçları, servis kayıtlarını ve takip bağlantılarını geri alınamayacak şekilde siler.</p>
     <p class="empty" th:if="${#lists.isEmpty(hesaplar)}">Henüz işletme hesabı yok.</p>
