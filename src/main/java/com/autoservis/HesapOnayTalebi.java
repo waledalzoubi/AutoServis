@@ -24,6 +24,14 @@ public class HesapOnayTalebi {
     @Column(nullable = false)
     private Instant gecerlilikZamani;
 
+    @Column(length = 200)
+    private String yoneticiKodOzeti;
+
+    private Instant yoneticiKodSonKullanma;
+    private Instant yoneticiKodGonderilmeZamani;
+
+    private Integer yoneticiKodYanlisDenemeSayisi = 0;
+
     public Long getId() { return id; }
     public IsletmeHesabi getHesap() { return hesap; }
     public void setHesap(IsletmeHesabi hesap) { this.hesap = hesap; }
@@ -33,4 +41,12 @@ public class HesapOnayTalebi {
     public void setDurumTokenOzeti(String durumTokenOzeti) { this.durumTokenOzeti = durumTokenOzeti; }
     public Instant getGecerlilikZamani() { return gecerlilikZamani; }
     public void setGecerlilikZamani(Instant gecerlilikZamani) { this.gecerlilikZamani = gecerlilikZamani; }
+    public String getYoneticiKodOzeti() { return yoneticiKodOzeti; }
+    public void setYoneticiKodOzeti(String yoneticiKodOzeti) { this.yoneticiKodOzeti = yoneticiKodOzeti; }
+    public Instant getYoneticiKodSonKullanma() { return yoneticiKodSonKullanma; }
+    public void setYoneticiKodSonKullanma(Instant yoneticiKodSonKullanma) { this.yoneticiKodSonKullanma = yoneticiKodSonKullanma; }
+    public Instant getYoneticiKodGonderilmeZamani() { return yoneticiKodGonderilmeZamani; }
+    public void setYoneticiKodGonderilmeZamani(Instant yoneticiKodGonderilmeZamani) { this.yoneticiKodGonderilmeZamani = yoneticiKodGonderilmeZamani; }
+    public int getYoneticiKodYanlisDenemeSayisi() { return yoneticiKodYanlisDenemeSayisi == null ? 0 : yoneticiKodYanlisDenemeSayisi; }
+    public void setYoneticiKodYanlisDenemeSayisi(int yoneticiKodYanlisDenemeSayisi) { this.yoneticiKodYanlisDenemeSayisi = yoneticiKodYanlisDenemeSayisi; }
 }

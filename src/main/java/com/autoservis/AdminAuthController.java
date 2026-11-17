@@ -115,20 +115,16 @@ public class AdminAuthController {
             aracRepository.saveAll(eskiAraclar);
         }
         if (onayBekleyecek) {
-            byte[] bytes = new byte[32];
-            random.nextBytes(bytes);
-            String token = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
             byte[] durumBytes = new byte[32];
             random.nextBytes(durumBytes);
             String durumKodu = Base64.getUrlEncoder().withoutPadding().encodeToString(durumBytes);
             HesapOnayTalebi talep = new HesapOnayTalebi();
             talep.setHesap(hesap);
-            talep.setTokenOzeti(tokenOzeti(token));
             talep.setDurumTokenOzeti(tokenOzeti(durumKodu));
             talep.setGecerlilikZamani(Instant.now().plus(Duration.ofHours(24)));
             onayRepository.save(talep);
             try {
-                onayEpostaServisi.onayIste(hesap, token);
+                onayEpostaServisi.onayIste(hesap);
             } catch (IOException | InterruptedException | RuntimeException ex) {
                 if (ex instanceof InterruptedException) Thread.currentThread().interrupt();
                 onayRepository.delete(talep);
