@@ -1,0 +1,29 @@
+name: AutoServis availability check
+
+on:
+  schedule:
+    # A public-repository schedule check keeps the free Render instance responsive.
+    - cron: "4,14,24,34,44,54 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: autoservis-render-availability-check
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Request the public sign-in page
+        shell: bash
+        run: |
+          status="$(curl --silent --show-error --location --max-time 90 \
+            --output /dev/null --write-out '%{http_code}' \
+            'https://autoservis-2f51.onrender.com/giris')"
+          case "$status" in
+            2*) echo "AutoServis responded with HTTP $status" ;;
+            *) echo "AutoServis returned HTTP $status"; exit 1 ;;
+          esac
