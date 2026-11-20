@@ -288,7 +288,7 @@ public class AdminAuthController {
             return "onay-bekleniyor";
         }
         oturumAc(request, hesap);
-        return "redirect:/";
+        return yoneticiHesabi ? "redirect:/yonetici" : "redirect:/";
     }
 
     @PostMapping("/giris-yap")
@@ -311,7 +311,8 @@ public class AdminAuthController {
             return "admin-giris";
         }
         oturumAc(request, hesap);
-        return "redirect:/";
+        return yoneticiErisimi.yoneticiEpostasiMi(temizEposta)
+                ? "redirect:/yonetici" : "redirect:/";
     }
 
     @PostMapping("/cikis")
