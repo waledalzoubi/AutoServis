@@ -1,4 +1,8 @@
 target/
+# Local H2 databases may contain customer data and private tracking keys.
+data/*.mv.db
+data/*.trace.db
+data/*.lock.db
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
