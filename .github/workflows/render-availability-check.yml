@@ -1,6 +1,9 @@
 name: AutoServis availability check
 
 on:
+  push:
+    branches:
+      - master
   schedule:
     # A public-repository schedule check keeps the free Render instance responsive.
     - cron: "4,14,24,34,44,54 * * * *"
