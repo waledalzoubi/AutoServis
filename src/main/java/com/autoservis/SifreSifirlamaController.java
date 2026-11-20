@@ -176,7 +176,7 @@ public class SifreSifirlamaController {
                 "to", List.of(alici),
                 "subject", "AutoServis şifre sıfırlama kodu",
                 "text", "AutoServis hesabınız için şifre sıfırlama kodunuz: " + kod
-                        + "\n\nKod 2 dakika içinde sona erer. Bu isteği siz başlatmadıysanız bu e-postayı yok sayın."
+                        + "\n\nKod 10 dakika içinde sona erer. Bu isteği siz başlatmadıysanız bu e-postayı yok sayın."
         );
         HttpRequest request = HttpRequest.newBuilder(URI.create("https://api.resend.com/emails"))
                 .timeout(Duration.ofSeconds(15))
