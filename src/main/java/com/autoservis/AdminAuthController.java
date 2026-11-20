@@ -61,6 +61,11 @@ public class AdminAuthController {
         return "admin-giris";
     }
 
+    @GetMapping("/giris-yap")
+    public String girisYapSayfasi() {
+        return "redirect:/giris";
+    }
+
     @GetMapping("/kayit")
     public String kayit() {
         return "admin-kayit";
