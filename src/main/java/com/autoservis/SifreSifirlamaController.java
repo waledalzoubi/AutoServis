@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.IOException;
 import java.net.URI;
@@ -26,11 +27,11 @@ import org.slf4j.LoggerFactory;
 @Controller
 public class SifreSifirlamaController {
     private static final Logger LOGGER = LoggerFactory.getLogger(SifreSifirlamaController.class);
-    private static final int KOD_GECERLILIK_DAKIKA = 2;
+    private static final int KOD_GECERLILIK_DAKIKA = 10;
     private static final int EN_COK_HATALI_DENEME = 5;
     private static final Duration YENIDEN_GONDERME_ARALIGI = Duration.ofSeconds(60);
     private static final String SIFIRLAMA_TALEBI_BILGISI =
-            "Adres kayıtlıysa sıfırlama kodu gönderildi. Kod 2 dakika geçerlidir.";
+            "Talebiniz alındı. E-posta adresi kayıtlıysa kod gönderilir. Kod gelmezse spam/gereksiz klasörünü kontrol edin veya en az 1 dakika sonra yeniden deneyin. Kod 10 dakika geçerlidir.";
     private static final Pattern EMAIL_IN_ERROR = Pattern.compile("[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}", Pattern.CASE_INSENSITIVE);
     private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10)).build();
@@ -117,8 +118,7 @@ public class SifreSifirlamaController {
             // are not disclosed through the page content.
             model.addAttribute("bilgi", SIFIRLAMA_TALEBI_BILGISI);
             model.addAttribute("kodIletildi", true);
-            String hataNedeni = ex.getMessage();
-            if (hataNedeni != null) hataNedeni = EMAIL_IN_ERROR.matcher(hataNedeni).replaceAll("[email]");
+            String hataNedeni = logIcinGuvenliMetin(ex.getMessage());
             LOGGER.warn("Password reset email delivery failed ({}): {}", ex.getClass().getSimpleName(), hataNedeni);
         }
         return "sifre-unuttum";
@@ -184,9 +184,31 @@ public class SifreSifirlamaController {
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(body)))
                 .build();
-        HttpResponse<Void> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.discarding());
+        HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() < 200 || response.statusCode() >= 300) {
-            throw new IOException("Resend API returned HTTP " + response.statusCode());
+            throw new IOException("Resend API returned HTTP " + response.statusCode()
+                    + ": " + resendHataMesaji(response.body()));
         }
+    }
+
+    private String resendHataMesaji(String responseBody) {
+        if (responseBody == null || responseBody.isBlank()) return "No provider details";
+        try {
+            JsonNode root = objectMapper.readTree(responseBody);
+            String name = root.path("name").asText("");
+            String message = root.path("message").asText("");
+            String detail = (name.isBlank() ? "" : name + ": ") + message;
+            return logIcinGuvenliMetin(detail.isBlank() ? "Provider rejected the request" : detail);
+        } catch (IOException ex) {
+            return "Provider returned a non-JSON error response";
+        }
+    }
+
+    private String logIcinGuvenliMetin(String value) {
+        if (value == null || value.isBlank()) return "No error details";
+        String sanitized = EMAIL_IN_ERROR.matcher(value).replaceAll("[email]")
+                .replaceAll("(?i)Bearer\\s+\\S+", "Bearer [redacted]")
+                .replaceAll("(?i)re_[A-Za-z0-9_-]+", "[redacted]");
+        return sanitized.length() > 300 ? sanitized.substring(0, 300) : sanitized;
     }
 }
