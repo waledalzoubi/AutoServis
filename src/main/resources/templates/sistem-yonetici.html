@@ -74,7 +74,7 @@
         <form action="/cikis" method="post"><button class="exit" type="submit">Güvenli çıkış</button></form>
     </header>
 
-    <section class="share-card" aria-labelledby="share-title">
+    <section class="share-card" aria-labelledby="share-title" th:attr="data-app-url=${applicationBaseUrl}">
         <h2 id="share-title">AutoServis bağlantısını WhatsApp’tan gönder</h2>
         <p>Telefon numarasını ülke koduyla yazın. WhatsApp’ta hazır mesaj açılır; göndermeden önce kontrol edebilirsiniz.</p>
         <form class="share-form" id="whatsapp-share-form">
@@ -98,7 +98,8 @@
                 input.addEventListener('input', () => input.setCustomValidity(''), { once: true });
                 return;
             }
-            const message = 'Merhaba! AutoServis uygulamasını buradan kullanabilirsiniz: https://autoservis-2f51.onrender.com/\n\nAndroid: Bağlantıyı Chrome’da açıp ⋮ menüsünden “Uygulamayı yükle”yi seçin.\niPhone: Bağlantıyı Safari’de açıp Paylaş > Ana Ekrana Ekle’yi seçin.';
+            const appUrl = document.querySelector('.share-card').dataset.appUrl;
+            const message = 'Merhaba! AutoServis uygulamasını buradan kullanabilirsiniz: ' + appUrl + '\n\nAndroid: Bağlantıyı Chrome’da açıp ⋮ menüsünden “Uygulamayı yükle”yi seçin.\niPhone: Bağlantıyı Safari’de açıp Paylaş > Ana Ekrana Ekle’yi seçin.';
             const url = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(message);
             window.open(url, '_blank', 'noopener,noreferrer');
         });

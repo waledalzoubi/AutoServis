@@ -2,6 +2,7 @@ package com.autoservis;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -34,6 +35,7 @@ public class SistemYoneticiController {
     private final ParolaKodlayici parolaKodlayici;
     private final IzinliEpostaRepository izinliEpostaRepository;
     private final SecureRandom random = new SecureRandom();
+    private final String applicationBaseUrl;
 
     public SistemYoneticiController(SistemYoneticiErisimi yoneticiErisimi,
                                     IsletmeHesabiRepository hesapRepository,
@@ -43,7 +45,8 @@ public class SistemYoneticiController {
                                     SifreSifirlamaKoduRepository sifreSifirlamaKoduRepository,
                                     HesapOnayEpostaServisi onayEpostaServisi,
                                     ParolaKodlayici parolaKodlayici,
-                                    IzinliEpostaRepository izinliEpostaRepository) {
+                                    IzinliEpostaRepository izinliEpostaRepository,
+                                    @Value("${autoservis.base-url:https://autoservis-2f51.onrender.com}") String applicationBaseUrl) {
         this.yoneticiErisimi = yoneticiErisimi;
         this.hesapRepository = hesapRepository;
         this.aracRepository = aracRepository;
@@ -53,6 +56,7 @@ public class SistemYoneticiController {
         this.onayEpostaServisi = onayEpostaServisi;
         this.parolaKodlayici = parolaKodlayici;
         this.izinliEpostaRepository = izinliEpostaRepository;
+        this.applicationBaseUrl = applicationBaseUrl;
     }
 
     @GetMapping("/yonetici")
@@ -77,6 +81,7 @@ public class SistemYoneticiController {
         model.addAttribute("yoneticiEpostasi", session.getAttribute("isletmeId") == null
                 ? "" : hesapRepository.findById((Long) session.getAttribute("isletmeId"))
                 .map(IsletmeHesabi::getEposta).orElse(""));
+        model.addAttribute("applicationBaseUrl", applicationBaseUrl);
         return "sistem-yonetici";
     }
 
