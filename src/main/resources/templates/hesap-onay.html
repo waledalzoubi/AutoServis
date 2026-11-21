@@ -3,7 +3,7 @@
 <head>
     <script defer src="/refresh-button.js?v=2"></script>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Hesap Onayı - AutoServis</title>
+    <title>Hesap Onayı - OtoPulse</title>
     <style>
         *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:20px;font-family:Arial,sans-serif;background:#f1f4f9;color:#172337}
         main{width:100%;max-width:500px;padding:30px;border-radius:16px;background:white;box-shadow:0 5px 25px #00000012}h1{text-align:center}
@@ -12,7 +12,7 @@
     </style>
 </head>
 <body><main>
-    <h1>AutoServis Hesap Onayı</h1>
+    <h1>OtoPulse Hesap Onayı</h1>
     <div class="err" th:if="${hata != null}" th:text="${hata}" role="alert"></div>
     <div th:if="${onaylandi != null}" class="ok" role="status">
         Hesap onaylandı. <span th:text="${eposta}"></span> adresi artık giriş yapabilir. Bu e-posta için sonraki girişlerde yeniden onay istenmeyecek.
@@ -20,7 +20,7 @@
     </div>
     <div th:if="${hata == null and onaylandi == null}">
         <p><strong th:text="${isletmeAdi}"></strong> işletmesi için <span th:text="${eposta}"></span> adresiyle hesap açma isteği var.</p>
-        <p>Bu hesabın AutoServis'e giriş yapmasına izin vermek için aşağıdaki düğmeye basın. Onay 24 saat boyunca geçerlidir.</p>
+        <p>Bu hesabın OtoPulse'e giriş yapmasına izin vermek için aşağıdaki düğmeye basın. Onay 24 saat boyunca geçerlidir.</p>
         <form action="/hesap-onay" method="post"><input type="hidden" name="token" th:value="${token}"><button type="submit">Hesabı onayla</button></form>
     </div>
 </main></body>
