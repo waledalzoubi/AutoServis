@@ -1,4 +1,4 @@
-const CACHE_NAME = "autoservis-shell-v2";
+const CACHE_NAME = "otopulse-shell-v3";
 const SHELL_FILES = [
   "/offline.html",
   "/manifest.webmanifest",
