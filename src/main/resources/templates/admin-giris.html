@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>İşletme Girişi - AutoServis</title>
+    <title>İşletme Girişi - OtoPulse</title>
     <style>
         * { box-sizing: border-box; }
         body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 20px; font-family: Arial, sans-serif; background: #f1f4f9; color: #172337; }
@@ -27,7 +27,7 @@
 </head>
 <body>
 <main>
-    <img class="brand-icon" src="/icons/autoservis-512.png" alt="AutoServis">
+    <img class="brand-icon" src="/icons/autoservis-512.png" alt="OtoPulse">
     <h1>İşletme Girişi</h1>
     <p>İşletme hesabınızla giriş yapın.</p>
     <form action="/giris-yap" method="post">
@@ -38,7 +38,7 @@
         <button type="submit">Giriş Yap</button>
     </form>
     <a class="musteri" href="/sifre-unuttum">Şifremi unuttum</a>
-    <button type="button" data-install-app hidden>AutoServis'i Uygulama Olarak Yükle</button>
+    <button type="button" data-install-app hidden>OtoPulse'i Uygulama Olarak Yükle</button>
     <div class="hata" th:if="${hata != null}" th:text="${hata}" role="alert"></div>
     <div class="hata" th:if="${param.hesapDonduruldu != null}" role="alert">Hesabınız donduruldu. Sistem yöneticisiyle iletişime geçin.</div>
     <div class="basarili" th:if="${param.hesapSilindi != null}" role="status">Yönetici hesabı kaldırıldı. Panele dönmek için aynı e-postayla yeniden kayıt olup onay bağlantısını tamamlamanız gerekir.</div>
